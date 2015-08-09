@@ -8,24 +8,28 @@ info from the build, like version (`BuildConfig.VERSION`) or name
 
 Build script snippet for use in all Gradle versions:
 
-    buildscript {
-      repositories {
-        maven {
-          url "https://plugins.gradle.org/m2/"
-        }
-      }
-      dependencies {
-        classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0"
-      }
+```gradle
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
     }
+  }
+  dependencies {
+    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0"
+  }
+}
 
-    apply plugin: "de.fuerstenau.buildconfig"
+apply plugin: "de.fuerstenau.buildconfig"
+```
 
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 
-    plugins {
-      id "de.fuerstenau.buildconfig" version "1.0"
-    }
+```gradle
+plugins {
+  id "de.fuerstenau.buildconfig" version "1.0"
+}
+```
 
 # Usage
 
@@ -40,12 +44,14 @@ _build config_ included by simply applying the plugin.
 `sourceSets` closure and then for every source set an own configuration closure.
 The simplest closure would look like this:
 
-    buildConfig {
-      sourceSets {
-        main {
-        }
-      }
+```gradle
+buildConfig {
+  sourceSets {
+    main {
     }
+  }
+}
+```
 
 `main` is the default source set introduced by the `java` plugin for gradle.
 If no further configuration is made, the _build config_ uses the defaults (see
@@ -61,29 +67,33 @@ set to use _Supercool App_ as name, and using the project version (set to `1.0`
 earlier) in combination with a custom suffix. Also the package for the
 _build config_ class is changed to `de.fuerstenau.somepackage`.
 
-    group = 'org.acme'
-    version = '1.0'
+```gradle
+group = 'org.acme'
+version = '1.0'
 
-    buildConfig {
-      sourceSets {
-        main {
-          packageName = 'de.fuerstenau.somepackage'
-          appName = 'Supercool App'
-          version = version + '-ALPHA'
-        }
-      }
+buildConfig {
+  sourceSets {
+    main {
+      packageName = 'de.fuerstenau.somepackage'
+      appName = 'Supercool App'
+      version = version + '-ALPHA'
     }
+  }
+}
+```
 
 The result would be a class
 
-    package de.fuerstenau.somepackage;
+```java
+package de.fuerstenau.somepackage;
 
-    public final class BuildConfig
-    {
-      public static final String VERSION = "1.0-ALPHA";
-      public static final String NAME = "Supercool App";
-    }
- 
+public final class BuildConfig
+{
+  public static final String VERSION = "1.0-ALPHA";
+  public static final String NAME = "Supercool App";
+}
+```
+
 ## Custom fields
 
 Custom fields can be added via `buildConfigField` method which takes the type,
@@ -91,19 +101,22 @@ the name and the value of the custom field as parameter. All parameters have to
 be given as strings (and escaped if necessary, single `String` and `char`
 values being the exception).
 
-    buildConfigField "type", "name", "value"
-
+```gradle
+buildConfigField "type", "name", "value"
+```
 For example, some custom fields:
 
-    buildConfig {
-      sourceSets {
-        main {
-          buildConfigField "boolean", "IS_DEBUG", "false"
-          buildConfigField "String", "SECRET_WORD", "Hinterland"
-          buildConfigField "char", "MYCHAR", "a"
-        }
-      }
+```gradle
+buildConfig {
+  sourceSets {
+    main {
+      buildConfigField "boolean", "IS_DEBUG", "false"
+      buildConfigField "String", "SECRET_WORD", "Hinterland"
+      buildConfigField "char", "MYCHAR", "a"
     }
+  }
+}
+```
 
 Any types can be referenced, the plugin will not make any imports, therefore
 fully qualifierd names have to be used.
@@ -124,23 +137,25 @@ included in the artifact _jar_.
 
 Here is an example of manual wiring:
 
-    task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
-        appName = "SuperTrooperStarshipApp"
-        version = "1.1.2"
-    }
+```gradle
+task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
+    appName = "SuperTrooperStarshipApp"
+    version = "1.1.2"
+}
 
-    task compileBuildConfig(type:JavaCompile, dependsOn: generateBuildConfig) {
-        classpath = files () // empty file collection
-        destinationDir = new File("${buildDir}/generatedClasses/main")
-        source = generateBuildConfig.outputDir
-    }
+task compileBuildConfig(type:JavaCompile, dependsOn: generateBuildConfig) {
+    classpath = files () // empty file collection
+    destinationDir = new File("${buildDir}/generatedClasses/main")
+    source = generateBuildConfig.outputDir
+}
 
-    afterEvaluate {
-        dependencies {
-            compile compileBuildConfig.outputs.files
-        }
-        sourceSets.main.output.dir compileBuildConfig.outputs.files
+afterEvaluate {
+    dependencies {
+        compile compileBuildConfig.outputs.files
     }
+    sourceSets.main.output.dir compileBuildConfig.outputs.files
+}
+```
 
 # Defaults
 
