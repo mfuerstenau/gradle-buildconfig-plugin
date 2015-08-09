@@ -11,7 +11,7 @@ if (!hasProperty('mainClass')) {
 }
 
 group = 'de.fuerstenau'
-version = '1.0'
+version = '1.0.1'
 
 repositories {
     mavenCentral()
@@ -40,17 +40,17 @@ jar {
 
 pluginBundle {
   // These settings are set for the whole plugin bundle
-  website = 'https://github.com/mfuerstenau/java-buildconfig-plugin'
-  vcsUrl = 'https://github.com/mfuerstenau/java-buildconfig-plugin'
+  website = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
+  vcsUrl = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
 
   plugins {
 
     // another plugin
     buildConfigPlugin {
       id = 'de.fuerstenau.buildconfig'
-      displayName = 'Gradle Java BuildConfig plugin'
-      description = 'Provides per SourceSet BuildConfig static class for gradle Java projects'
-      tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset']
+      displayName = 'Java/Groovy BuildConfig plugin'
+      description = 'Provides per SourceSet BuildConfig static class for gradle Java/Groovy projects'
+      tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset', 'groovy']
       version = project.version
     }
   }
