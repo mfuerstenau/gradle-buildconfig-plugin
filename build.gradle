@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'java-gradle-plugin'
-    id 'maven'
 }
 
 sourceCompatibility = '1.8'
@@ -18,19 +17,10 @@ repositories {
     mavenCentral()
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "file://C:/Users/mfuerstenau/Documents/NetBeansProjects/IndexDumper/repo")
-        }
-    }
-}
-
 configurations {
     provided
     compile.extendsFrom provided
 }
-
 
 dependencies {
     provided gradleApi()
