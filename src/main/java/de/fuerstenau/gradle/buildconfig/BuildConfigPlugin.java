@@ -54,6 +54,7 @@ public class BuildConfigPlugin implements Plugin<Project>
    public static final String DEFAULT_SOURCESET = MAIN_SOURCESET;
    public static final String DEFAULT_NAME_FIELDNAME = "NAME";
    public static final String DEFAULT_VERSION_FIELDNAME = "VERSION";
+   public static final String DEFAULT_PACKAGENAME = "de.fuerstenau.buildconfig";
 
    private static final Logger LOG = LoggerFactory.getLogger (BuildConfigPlugin.class.getCanonicalName ());
 
@@ -170,10 +171,17 @@ public class BuildConfigPlugin implements Plugin<Project>
                      Object delegateObj = getDelegate ();
                      if (delegateObj instanceof GenerateBuildConfigTask)
                      {
-                        GenerateBuildConfigTask task = (GenerateBuildConfigTask) delegateObj;
-                        task.setPackageName (defaultIfNull (cfg.getPackageName (), getProjectGroup (p)));
-                        task.setAppName (defaultIfNull (cfg.getAppName (), getProjectName (p)));
-                        task.setVersion (defaultIfNull (cfg.getVersion (), getProjectVersion (p)));
+                        GenerateBuildConfigTask task =
+                                (GenerateBuildConfigTask) delegateObj;
+                        task.setPackageName (defaultIfNull(
+                                defaultIfNull (
+                                        cfg.getPackageName (),
+                                        getProjectGroup (p)),
+                                DEFAULT_PACKAGENAME));
+                        task.setAppName (defaultIfNull (cfg.getAppName (),
+                                getProjectName (p)));
+                        task.setVersion (defaultIfNull (cfg.getVersion (),
+                                getProjectVersion (p)));
                         for (ClassField cf : cfg.getBuildConfigFields ().values ())
                            task.addClassField (cf);
                      }

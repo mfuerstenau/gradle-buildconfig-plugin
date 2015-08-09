@@ -24,6 +24,7 @@ package de.fuerstenau.gradle.buildconfig;
 
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_CLASS_NAME;
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_NAME_FIELDNAME;
+import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_PACKAGENAME;
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_SOURCESET;
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_VERSION_FIELDNAME;
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.defaultIfNull;
@@ -122,7 +123,8 @@ public class GenerateBuildConfigTask extends DefaultTask
       
       /* configure defaults */
       version = BuildConfigPlugin.getProjectVersion (p);
-      packageName = BuildConfigPlugin.getProjectGroup (p);
+      packageName = defaultIfNull(BuildConfigPlugin.getProjectGroup (p),
+              DEFAULT_PACKAGENAME);
       appName = p.getName ();
       sourceSet = DEFAULT_SOURCESET;
       
