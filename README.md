@@ -57,10 +57,11 @@ buildConfig {
 If no further configuration is made, the _build config_ uses the defaults (see
 [Defaults](/Defaults/)).
 
-At the moment there are two properties to configure:
+At the moment there are these properties to configure:
 
-* `appName` and
-* `version`
+* `packageName`,
+* `appName`,
+* `version`.
 
 The following closure would configure the _build config_ for the `main` source
 set to use _Supercool App_ as name, and using the project version (set to `1.0`
@@ -91,6 +92,21 @@ public final class BuildConfig
 {
   public static final String VERSION = "1.0-ALPHA";
   public static final String NAME = "Supercool App";
+}
+```
+
+which then could be referenced in the app like this
+
+```java
+import de.fuerstenau.somepackage.BuildConfig;
+
+public class HelloWorld
+{
+   public static void main (String[] args)
+   {
+      System.out.println (BuildConfig.NAME);
+      System.out.println (BuildConfig.VERSION);
+   }
 }
 ```
 
