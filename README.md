@@ -1,4 +1,4 @@
-# Gradle BuildConfig plugin for Java projects
+# Gradle BuildConfig plugin for Java/Groovy projects
 Provides one or multiple classes (per source set) generated and compiled by
 the build script (`build.gradle`) containing constants (`static final`) with
 info from the build, like version (`BuildConfig.VERSION`) or name
@@ -6,7 +6,7 @@ info from the build, like version (`BuildConfig.VERSION`) or name
 
 # Requirements
 
-The `java` plugin needs to be applied prior to this plugin.
+The `java` or `groovy` plugin needs to be applied prior to this plugin.
 
 # Download
 
@@ -27,7 +27,8 @@ buildscript {
 apply plugin: "de.fuerstenau.buildconfig"
 ```
 
-Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
+Build script snippet for new, incubating, plugin mechanism introduced in Gradle
+2.1:
 
 ```gradle
 plugins {
@@ -40,9 +41,9 @@ plugins {
 ## Basics
 
 By default the plugin does _nothing_. Yes, that is right. Because of the
-different combinations of source sets (introduced by `java`-plugin) a project
-can hold, there would be the potential to mess things up by having a default
-_build config_ included by simply applying the plugin.
+different combinations of source sets (introduced by `java`/`groovy`-plugin) a
+project can hold, there would be the potential to mess things up by having a
+default _build config_ included by simply applying the plugin.
 
 `Build configs` are configured using the `buildConfig` closure, containing a
 `sourceSets` closure and then for every source set an own configuration closure.

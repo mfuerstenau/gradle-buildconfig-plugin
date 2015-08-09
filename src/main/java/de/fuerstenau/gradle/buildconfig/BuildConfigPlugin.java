@@ -262,7 +262,8 @@ public class BuildConfigPlugin implements Plugin<Project>
 
    private static void checkConstraints (Project p)
    {
-      if (!p.getPluginManager ().hasPlugin ("java"))
-         throw new GradleException ("Missing requirement: java plugin");
+      if (!(p.getPluginManager ().hasPlugin ("java") ||
+              p.getPluginManager ().hasPlugin ("groovy")))
+         throw new GradleException ("Missing requirement: java or groovy plugin");
    }
 }
