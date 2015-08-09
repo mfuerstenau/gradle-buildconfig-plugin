@@ -1,36 +1,18 @@
-buildscript {
-    repositories { jcenter() }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
-    }
-}
-    
 plugins {
     id 'java'
     id 'java-gradle-plugin'
     id 'maven'
 }
-//apply plugin: ''
-//
-//apply plugin: 'maven'
 
-sourceCompatibility = '1.7'
+sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-// NetBeans will automatically add "run" and "debug" tasks relying on the
-// "mainClass" property. You may however define the property prior executing
-// tasks by passing a "-PmainClass=<QUALIFIED_CLASS_NAME>" argument.
-//
-// Note however, that you may define your own "run" and "debug" task if you
-// prefer. In this case NetBeans will not add these tasks but you may rely on
-// your own implementation.
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
 group = 'de.fuerstenau'
-version = '1.0-SNAPSHOT'
-status = 'SNAPSHOT'
+version = '1.0'
 
 repositories {
     mavenCentral()
@@ -52,16 +34,9 @@ configurations {
 
 dependencies {
     provided gradleApi()
-    //compile localGroovy()
-    //compile 'com.sun.codemodel:codemodel:2.6'
-    // TODO: Add dependencies here ...
-    // You can read more about how to add dependency here:
-    //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
     testCompile group: 'junit', name: 'junit', version: '4.10'
     testCompile 'org.assertj:assertj-core:2.1.0'
 }
-
-
 
 
 jar {
@@ -69,48 +44,6 @@ jar {
     from {
         (configurations.runtime - configurations.provided).collect {
             it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
-
-task shadowJar (type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar, dependsOn: jar) {
-    appendix = 'shadow'
-    from zipTree(jar.archivePath)
-    relocate 'com.sun.codemodel', 'de.fuerstenau.buildconfig.internal.com.sun.codemodel'
-}
-
-task postProcessJar (type: Jar, dependsOn: shadowJar) {
-    //    appendix = "postprocessed"
-    from zipTree(shadowJar.archivePath).matching {
-        exclude 'com/**'
-    }
-}
-
-configurations.archives.with {
-    artifacts.remove artifacts.find { it.archiveTask.is jar }
-}
-
-artifacts {
-    archives postProcessJar
-}
-
-install.repositories.mavenInstaller.pom.whenConfigured {pom ->
-    pom.dependencies.removeAll { it.scope == "compile" }
-}
-
-uploadArchives.repositories.mavenDeployer.pom.whenConfigured {pom ->
-    pom.dependencies.removeAll { it.scope == "compile" }
-}
-
-tasks.withType(JavaCompile) {
-    doFirst {
-        if (sourceCompatibility == '1.7') {
-            options.fork = true
-            options.bootClasspath = "I:/jdk7/rt.jar"
-            options.bootClasspath += "${File.pathSeparator}I:/jdk7/jsse.jar"
-            options.bootClasspath += "${File.pathSeparator}I:/jdk7/jce.jar"
-            // use the line above as an example to add jce.jar 
-            // and other specific JDK jars
         }
     }
 }
