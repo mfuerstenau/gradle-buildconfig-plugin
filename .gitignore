@@ -1,4 +1,6 @@
 .nb-gradle
+.nb-gradle-properties
+.templates
 .gradle
 build/
 
