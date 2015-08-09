@@ -4,6 +4,10 @@ the build script (`build.gradle`) containing constants (`static final`) with
 info from the build, like version (`BuildConfig.VERSION`) or name
 (`BuildConfig.NAME`) or any other information.
 
+# Requirement
+
+The `java` plugin needs to be applied prior to this plugin.
+
 # Download
 
 Build script snippet for use in all Gradle versions:

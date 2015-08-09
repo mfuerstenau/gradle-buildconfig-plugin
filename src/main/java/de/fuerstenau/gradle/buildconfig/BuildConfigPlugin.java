@@ -88,7 +88,7 @@ public class BuildConfigPlugin implements Plugin<Project>
       catch (UnknownConfigurationException ex)
       {
          throw new GradleException (
-                 String.format ("configuration {} not found. skipping.",
+                 String.format ("configuration <%s> not found. skipping.",
                          configurationName), ex);
       }
       return res;
@@ -126,7 +126,8 @@ public class BuildConfigPlugin implements Plugin<Project>
    @Override
    public void apply (final Project p)
    {
-
+      checkConstraints(p);
+      
       /* create the configuration closure */
       p.getExtensions ().create (DEFAULT_EXTENSION_NAME, BuildConfigExtension.class, p);
 
@@ -257,5 +258,11 @@ public class BuildConfigPlugin implements Plugin<Project>
       if (groupObj instanceof String)
          return (String) groupObj;
       return null;
+   }
+
+   private static void checkConstraints (Project p)
+   {
+      if (!p.getPluginManager ().hasPlugin ("java"))
+         throw new GradleException ("Missing requirement: java plugin");
    }
 }
