@@ -32,7 +32,7 @@ Build script snippet for new, incubating, plugin mechanism introduced in Gradle
 
 ```gradle
 plugins {
-  id "de.fuerstenau.buildconfig" version "1.0"
+  id "de.fuerstenau.buildconfig" version "1.0.1"
 }
 ```
 
