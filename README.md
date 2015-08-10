@@ -20,7 +20,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.2"
+    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.3"
   }
 }
 
@@ -32,7 +32,7 @@ Build script snippet for new, incubating, plugin mechanism introduced in Gradle
 
 ```gradle
 plugins {
-  id "de.fuerstenau.buildconfig" version "1.0.2"
+  id "de.fuerstenau.buildconfig" version "1.0.3"
 }
 ```
 
