@@ -216,10 +216,8 @@ public class BuildConfigPlugin implements Plugin<Project>
                Dependency dep = p.getDependencies ().create (
                        compile.getOutputs ().getFiles ());
                compileCfg.getDependencies ().add (dep);
-
-               /* also add compiled generated classes to sourceset outputs (to
-                * include them in jar)*/
-               sourceSet.getOutput ().dir (compile.getOutputs ().getFiles ());
+               LOG.debug ("added task <{}> output files as dependency for configuration <{}>",
+                       compileTaskName, compileCfg.getName ());
             }
             return null;
          }

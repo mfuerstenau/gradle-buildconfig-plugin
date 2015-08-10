@@ -207,6 +207,7 @@ public class GenerateBuildConfigTask extends DefaultTask
    @TaskAction
    public void generateBuildConfig () throws IOException
    {
+      LOG.debug ("{}: GenerateBuildConfigTask executed.", getName ());
       /* base dir for sources generates by this task */
       final Path outputDir = getOutputDirPath ();
       /* buildConfig sourece file */
