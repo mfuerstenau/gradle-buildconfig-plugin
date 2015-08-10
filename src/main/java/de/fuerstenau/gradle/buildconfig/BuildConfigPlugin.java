@@ -26,6 +26,7 @@ package de.fuerstenau.gradle.buildconfig;
 import groovy.lang.Closure;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.gradle.api.GradleException;
@@ -128,7 +129,7 @@ public class BuildConfigPlugin implements Plugin<Project>
    @Override
    public void apply (final Project p)
    {
-      checkConstraints (p);
+      applyRequiredJavaPlugin(p);
 
       /* create the configuration closure */
       p.getExtensions ().create (DEFAULT_EXTENSION_NAME, BuildConfigExtension.class, p);
@@ -259,12 +260,15 @@ public class BuildConfigPlugin implements Plugin<Project>
          return (String) groupObj;
       return null;
    }
-
-   private static void checkConstraints (Project p)
+   
+   private static void applyRequiredJavaPlugin (Project p)
    {
-      final PluginManager pm = p.getPluginManager ();
-      if (!(pm.hasPlugin ("java") || pm.hasPlugin ("org.gradle.java") ||
-              pm.hasPlugin ("groovy") || pm.hasPlugin ("org.gradle.groovy")))
-         throw new GradleException ("Missing requirement: java or groovy plugin");
+      p.apply (new HashMap<String, Object> ()
+      {
+         private static final long serialVersionUID = 3109256773218160485L;
+         {
+            put ("plugin", "java");
+         }
+      });
    }
 }
