@@ -20,6 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package de.fuerstenau.gradle.buildconfig;
 
 import groovy.lang.Closure;
@@ -35,6 +36,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.PluginManager;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.slf4j.Logger;
@@ -126,8 +128,8 @@ public class BuildConfigPlugin implements Plugin<Project>
    @Override
    public void apply (final Project p)
    {
-      checkConstraints(p);
-      
+      checkConstraints (p);
+
       /* create the configuration closure */
       p.getExtensions ().create (DEFAULT_EXTENSION_NAME, BuildConfigExtension.class, p);
 
@@ -172,9 +174,9 @@ public class BuildConfigPlugin implements Plugin<Project>
                      Object delegateObj = getDelegate ();
                      if (delegateObj instanceof GenerateBuildConfigTask)
                      {
-                        GenerateBuildConfigTask task =
-                                (GenerateBuildConfigTask) delegateObj;
-                        task.setPackageName (defaultIfNull(
+                        GenerateBuildConfigTask task
+                                = (GenerateBuildConfigTask) delegateObj;
+                        task.setPackageName (defaultIfNull (
                                 defaultIfNull (
                                         cfg.getPackageName (),
                                         getProjectGroup (p)),
@@ -260,8 +262,9 @@ public class BuildConfigPlugin implements Plugin<Project>
 
    private static void checkConstraints (Project p)
    {
-      if (!(p.getPluginManager ().hasPlugin ("java") ||
-              p.getPluginManager ().hasPlugin ("groovy")))
+      final PluginManager pm = p.getPluginManager ();
+      if (!(pm.hasPlugin ("java") || pm.hasPlugin ("org.gradle.java") ||
+              pm.hasPlugin ("groovy") || pm.hasPlugin ("org.gradle.groovy")))
          throw new GradleException ("Missing requirement: java or groovy plugin");
    }
 }
