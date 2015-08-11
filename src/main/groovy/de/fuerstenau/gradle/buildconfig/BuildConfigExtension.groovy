@@ -20,31 +20,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package de.fuerstenau.gradle.buildconfig;
+package de.fuerstenau.gradle.buildconfig
 
-import groovy.lang.Closure;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.Project;
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.Project
 
 /**
  * @author Malte Fürstenau
  */
-public class BuildConfigExtension
+class BuildConfigExtension
 {
-   private final NamedDomainObjectContainer<SourceSetConfig> sourceSets;
+   final NamedDomainObjectContainer<SourceSetConfig> sourceSets
 
-   public BuildConfigExtension (Project project)
+   BuildConfigExtension (Project project)
    {
-      sourceSets = project.container(SourceSetConfig.class);
+      sourceSets = project.container(SourceSetConfig)
    }
 
-   public NamedDomainObjectContainer<SourceSetConfig> getSourceSets ()
+    void sourceSets (Closure<Void> c)
    {
-      return sourceSets;
-   }
-   
-   public void sourceSets (Closure<Void> c)
-   {
-      sourceSets.configure (c);
+      sourceSets.configure (c)
    }
 }

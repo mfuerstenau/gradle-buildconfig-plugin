@@ -20,22 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package de.fuerstenau.gradle.buildconfig;
-
-import java.util.Set;
+package de.fuerstenau.gradle.buildconfig
 
 /**
  * @author Malte Fürstenau
  */
-public interface ClassField
+interface ClassField
 {
-   String getType ();
+    String getType ()
 
-   String getName ();
+    String getName ()
 
-   String getValue ();
+    String getValue ()
 
-   String getDocumentation ();
+    String getDocumentation ()
 
-   Set<String> getAnnotations ();
+    Set<String> getAnnotations ()
 }
