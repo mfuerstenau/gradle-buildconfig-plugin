@@ -132,6 +132,7 @@ class BuildConfigPlugin implements Plugin<Project>
                 GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
                     /* configure generate task with values from the extension */
                     packageName = (cfg.packageName ?: p.group) ?: DEFAULT_PACKAGENAME
+                    clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
                     appName = cfg.appName ?: p.name
                     version = cfg.version ?: p.version
                     cfg.buildConfigFields.values().forEach { cf ->

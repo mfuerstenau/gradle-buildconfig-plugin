@@ -36,6 +36,7 @@ public class SourceSetConfig implements Named
 
    final String name
    String version
+   String clsName
    String appName
    String packageName
    private final Map<String, ClassField> classFields = new LinkedHashMap<>()

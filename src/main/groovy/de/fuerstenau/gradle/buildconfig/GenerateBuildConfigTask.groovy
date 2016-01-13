@@ -71,6 +71,9 @@ class GenerateBuildConfigTask extends DefaultTask
     String packageName
 
     @Input
+    String clsName
+
+    @Input
     String version
 
     @Input
@@ -83,6 +86,7 @@ class GenerateBuildConfigTask extends DefaultTask
         /* configure defaults */
         version = project.version
         packageName = project.group ?: DEFAULT_PACKAGENAME
+        clsName = DEFAULT_CLASS_NAME
         appName = project.name
         sourceSet = DEFAULT_SOURCESET
       
@@ -158,7 +162,7 @@ class GenerateBuildConfigTask extends DefaultTask
 
     private Path getOutputFile ()
     {
-        getOutputDirPath ().resolve (DEFAULT_CLASS_NAME + ".java")
+        getOutputDirPath ().resolve (clsName + ".java")
     }
 
     @TaskAction
@@ -178,7 +182,7 @@ class GenerateBuildConfigTask extends DefaultTask
         new ClassWriter (
             Files.newBufferedWriter (outputFile, Charset.forName ("UTF-8"),
                 StandardOpenOption.CREATE)).withCloseable { w ->
-            w.writePackage (packageName).writeClass (DEFAULT_CLASS_NAME)
+            w.writePackage (packageName).writeClass (clsName)
 
             mergedClassFields.values ().forEach { cf ->
                 w.writeClassField cf
