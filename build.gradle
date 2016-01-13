@@ -12,7 +12,7 @@ if (!hasProperty('mainClass')) {
 }
 
 group = 'de.fuerstenau'
-version = '1.0.5'
+version = '1.0.6'
 
 repositories {
     mavenCentral()
@@ -55,4 +55,8 @@ pluginBundle {
       version = project.version
     }
   }
+}
+
+task wrapper(type: Wrapper) {
+   gradleVersion = '2.10'
 }
