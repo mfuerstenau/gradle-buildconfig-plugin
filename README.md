@@ -20,7 +20,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.5"
+    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6"
   }
 }
 
@@ -32,7 +32,7 @@ Build script snippet for new, incubating, plugin mechanism introduced in Gradle
 
 ```gradle
 plugins {
-  id "de.fuerstenau.buildconfig" version "1.0.5"
+  id "de.fuerstenau.buildconfig" version "1.0.6"
 }
 ```
 
@@ -64,9 +64,10 @@ If no further configuration is made, the _build config_ uses the defaults (see
 
 At the moment there are these properties to configure:
 
-* `packageName`,
-* `appName`,
-* `version`.
+* `packageName` (package of the build config class, default: `project.group`),
+* `clsName` (class of the build config class, default: `BuildConfig`),
+* `appName` (name of the app, default: `project.name`),
+* `version` (version of the app, default: `project.version`).
 
 The following closure would configure the _build config_ for the `main` source
 set to use _Supercool App_ as name, and using the project version (set to `1.0`
