@@ -29,79 +29,71 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.gradle.api.Task
-import static org.junit.Assert.*
 import org.gradle.api.Project
 import org.gradle.api.ProjectEvaluationListener
 import org.gradle.api.internal.project.AbstractProject
 import org.gradle.api.internal.project.ProjectStateInternal
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.testfixtures.ProjectBuilder
-
+import static org.assertj.core.api.Assertions.assertThat
 /**
  *
  */
 class BuildConfigPluginTest {
 
-    public BuildConfigPluginTest() {
-    }
+   public BuildConfigPluginTest() {
+   }
 
-    @BeforeClass
-    public static void setUpClass() {
-    }
+   @BeforeClass
+   public static void setUpClass() {
+   }
 
-    @AfterClass
-    public static void tearDownClass() {
-    }
+   @AfterClass
+   public static void tearDownClass() {
+   }
 
-    @Before
-    public void setUp() {
-    }
+   @Before
+   public void setUp() {
+   }
 
-    @Test
-    public void testPlugin() {
-        Project project = ProjectBuilder.builder().build()
-        project.pluginManager.apply 'java'
-        project.pluginManager.apply 'de.fuerstenau.buildconfig'
+   @Test
+   public void testPlugin() {
+      Project project = ProjectBuilder.builder().withName ("testProject").build()
+      project.pluginManager.apply 'java'
+      project.pluginManager.apply 'de.fuerstenau.buildconfig'
         
-        project.sourceSets {
-            testSet1
-        }
-        
-        project.buildConfig {
-         
-            version = "meineVersion"
-            packageName = "de.fuerstenau"
-//            sourceSets {
-//                main
-//                testSet1 {
-//                    version = "tolleVersion1"
-//                }
-//            }
-        }
-        
-        ProjectStateInternal projectState = new ProjectStateInternal();
-        projectState.executed();
-        ProjectEvaluationListener evaluationListener = ((AbstractProject) project).getProjectEvaluationBroadcaster();
-        evaluationListener.afterEvaluate(project, projectState);
+      project.sourceSets {
+         testSet1
+      }
+
+//      project.tasks.create (name: "generateBuildConfig", type: GenerateBuildConfigTask) {
+//         version = "nochneVersion"
+//      }
       
-        println "tasks: $project.tasks"
+      GenerateBuildConfigTask t1 = project.tasks.getByName "generateBuildConfig"
+      
+      project.buildConfig {
+         version = "meineVersion"
+         packageName = "de.testpackage"
+      }
         
-        TaskCollection<GenerateBuildConfigTask> buildConfigs = project.tasks.withType (GenerateBuildConfigTask)
+      ProjectStateInternal projectState = new ProjectStateInternal();
+      projectState.executed();
+      ProjectEvaluationListener evaluationListener = ((AbstractProject) project).getProjectEvaluationBroadcaster();
+      evaluationListener.afterEvaluate(project, projectState);
+      
+      println "tasks: $project.tasks"
         
-        buildConfigs.each { GenerateBuildConfigTask t ->
-            println t.name
-            println t.version
-        }
+      GenerateBuildConfigTask t = project.tasks.getByName "generateBuildConfig"
         
-        //      assertTrue(project.tasks.generateBuildConfig instanceof GenerateBuildConfigTask)
-    }
+      assertThat (t.appName).isEqualTo ("testProject")
+      assertThat (t.version).isEqualTo ("meineVersion")
+      assertThat (t.packageName).isEqualTo ("de.testpackage")
+      assertThat (t.clsName).isEqualTo ("BuildConfig")
+      assertThat (t.classFields).isEmpty ()
+   }
    
-    @After
-    public void tearDown() {
-    }
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+   @After
+   public void tearDown() {
+   }
 }
