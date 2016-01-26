@@ -28,17 +28,24 @@ import org.gradle.api.Project
 /**
  * @author Malte Fürstenau
  */
-class BuildConfigExtension
+class BuildConfigExtension extends SourceSetConfigBase
 {
-   final NamedDomainObjectContainer<SourceSetConfig> sourceSets
+    final NamedDomainObjectContainer<SourceSetConfig> sourceSets
 
-   BuildConfigExtension (Project project)
-   {
-      sourceSets = project.container(SourceSetConfig)
-   }
+    BuildConfigExtension (Project project)
+    {
+        super ()
+        sourceSets = project.container(SourceSetConfig)
+    }
 
     void sourceSets (Closure<Void> c)
-   {
-      sourceSets.configure (c)
-   }
+    {
+        sourceSets.configure (c)
+    }
+    
+    @Override
+    String toString ()
+    {
+        "${super.toString ()}, sourceSets=$sourceSets"
+    }
 }

@@ -29,53 +29,22 @@ import org.slf4j.LoggerFactory
 /**
  * @author Malte Fürstenau
  */
-public class SourceSetConfig implements Named
+public class SourceSetConfig extends SourceSetConfigBase implements Named
 {
-   private static final Logger LOG = LoggerFactory.getLogger (
-       SourceSetConfig.class.getCanonicalName ())
+    private static final Logger LOG = LoggerFactory.getLogger (
+        SourceSetConfig.class.getCanonicalName ())
 
-   final String name
-   String version
-   String clsName
-   String appName
-   String packageName
-   private final Map<String, ClassField> classFields = new LinkedHashMap<>()
-
-   public SourceSetConfig (String name)
-   {
-      this.name = name
-   }
-
-   Map<String, ClassField> getBuildConfigFields ()
-   {
-      return classFields
-   }
+    final String name
+    
+    public SourceSetConfig (String name)
+    {
+        super ()
+        this.name = name
+    }
    
-   
-   public void buildConfigField (String type, String name, String value)
-   {
-      addClassField (type, name, value)
-   }
-   
-   void addClassField (String type, String name, String value)
-   {
-      addClassField (classFields, new ClassFieldImpl (type, name, value))
-   }   
-   void addClassField (Map<String, ClassField> dest, ClassField cf)
-   {
-      ClassField alreadyPresent = dest.get (cf.getName ())
-
-      if (alreadyPresent != null)
-      {
-         LOG.debug "{}: buildConfigField <{}/{}/{}> exists, replacing with <{}/{}/{}>",
-                 name,
-                 alreadyPresent.type,
-                 alreadyPresent.name,
-                 alreadyPresent.value,
-                 cf.type,
-                 cf.name,
-                 cf.value
-      }
-      dest.put (cf.name, cf)
-   }
+    @Override
+    String toString ()
+    {
+        "name=$name, ${super.toString ()}"
+    }
 }

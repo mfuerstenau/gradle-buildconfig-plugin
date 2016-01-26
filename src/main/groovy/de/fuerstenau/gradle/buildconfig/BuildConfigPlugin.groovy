@@ -82,7 +82,7 @@ class BuildConfigPlugin implements Plugin<Project>
         catch (UnknownConfigurationException ex)
         {
             throw new GradleException (
-                "Configuration <${configurationName}> not found. skipping.", ex)
+                "Configuration <${configurationName}> not found.", ex)
         }
     }
 
@@ -91,12 +91,12 @@ class BuildConfigPlugin implements Plugin<Project>
         try
         {
             p.convention.getPlugin (JavaPluginConvention).sourceSets
-                .getByName (cfg.name)
+            .getByName (cfg.name)
         }
         catch (UnknownDomainObjectException ex)
         {
             throw new GradleException (
-                    "SourceSet <${cfg.name}> not found. skipping.", ex)
+                    "SourceSet <${cfg.name}> not found.", ex)
                 
         }
     }
@@ -141,18 +141,18 @@ class BuildConfigPlugin implements Plugin<Project>
                 }
                 
                 LOG.debug  "Created task <{}> for sourceSet <{}>.",
-                        generateTaskName, cfg.name
+                generateTaskName, cfg.name
 
                 JavaCompile compile =
-                        p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
+                p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
                     /* configure compile task */
                     classpath = p.files ()
                     destinationDir = new File ("${p.buildDir}/${FD_CLASS_OUTPUT}/${cfg.name}")
                     source = generate.outputDir
                 }
                 LOG.debug  "Created compiling task <{}> for sourceSet <{}>",
-                    compileTaskName,
-                    cfg.name
+                compileTaskName,
+                cfg.name
 
                 /* add dependency for sourceset compile configturation */
                 compileCfg.dependencies.add (p.dependencies.create (
@@ -167,8 +167,34 @@ class BuildConfigPlugin implements Plugin<Project>
 
     private List<SourceSetConfig> getSourceSetConfigs ()
     {
-        new ArrayList<SourceSetConfig> (p.extensions.getByType (BuildConfigExtension)
-                    .sourceSets)
+        BuildConfigExtension ext = p.extensions.getByType (BuildConfigExtension)
+        
+        List<SourceSetConfig>  res = new ArrayList<> ()
+        
+        if (ext.sourceSets.size () > 0)
+        {
+            ext.sourceSets.each { SourceSetConfig cfg ->
+                SourceSetConfig template = new SourceSetConfig (cfg.name)
+                template.appName = cfg.appName ?: ext.appName
+                template.packageName = cfg.packageName ?: ext.packageName
+                template.version = cfg.version ?: ext.version
+                template.clsName = cfg.clsName ?: ext.clsName
+                template.buildConfigFields.putAll (ext.buildConfigFields) 
+                template.buildConfigFields.putAll (cfg.buildConfigFields) 
+                res.add(template)
+            }
+        }
+        else if (ext.appName != null || ext.version != null || ext.packageName != null || ext.clsName != null || !ext.buildConfigFields.isEmpty ())
+        {
+            SourceSetConfig ncfg = new SourceSetConfig ("main")
+            ncfg.appName = ext.appName
+            ncfg.packageName = ext.packageName
+            ncfg.version = ext.version
+            ncfg.clsName = ext.clsName
+            ncfg.buildConfigFields.putAll (ext.buildConfigFields) 
+            res.add(ncfg)
+        }
+        return res
     }
 
     static String getProjectVersion (Project p)
