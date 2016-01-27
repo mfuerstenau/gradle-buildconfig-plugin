@@ -89,20 +89,20 @@ public class SourceSetConfig implements Named
    
    SourceSetConfig plus (SourceSetConfig other)
    {
-      SourceSetConfig ncfg = new SourceSetConfig (other.name)
-      ncfg.appName = other.appName ?: this.appName
-      ncfg.packageName = other.packageName ?: this.packageName
-      ncfg.version = other.version ?: this.version
-      ncfg.clsName = other.clsName ?: this.clsName
+      SourceSetConfig result = new SourceSetConfig (other.name)
+      result.appName = other.appName ?: this.appName
+      result.packageName = other.packageName ?: this.packageName
+      result.version = other.version ?: this.version
+      result.clsName = other.clsName ?: this.clsName
       other.buildConfigFields.each {
          if (it.value != null)
-            ncfg.buildConfigFields.put (it.key, it.value)
+            result.buildConfigFields.put (it.key, it.value)
       }
       this.buildConfigFields.each {
          if (it.value != null)
-            ncfg.buildConfigFields.put (it.key, it.value)
+            result.buildConfigFields.put (it.key, it.value)
       }
-      return ncfg
+      return result
    }
    
 }

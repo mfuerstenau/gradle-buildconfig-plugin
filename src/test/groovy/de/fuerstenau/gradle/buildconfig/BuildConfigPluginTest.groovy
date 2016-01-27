@@ -29,11 +29,17 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencySet
+import org.gradle.api.artifacts.FileCollectionDependency
+import org.gradle.api.file.FileCollection
 import org.gradle.api.Project
 import org.gradle.api.ProjectEvaluationListener
 import org.gradle.api.internal.project.AbstractProject
 import org.gradle.api.internal.project.ProjectStateInternal
 import org.gradle.api.tasks.TaskCollection
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.testfixtures.ProjectBuilder
 import static org.assertj.core.api.Assertions.assertThat
 /**
@@ -66,12 +72,6 @@ class BuildConfigPluginTest {
          testSet1
       }
 
-//      project.tasks.create (name: "generateBuildConfig", type: GenerateBuildConfigTask) {
-//         version = "nochneVersion"
-//      }
-      
-      GenerateBuildConfigTask t1 = project.tasks.getByName "generateBuildConfig"
-      
       project.buildConfig {
          version = "meineVersion"
          packageName = "de.testpackage"
@@ -84,15 +84,36 @@ class BuildConfigPluginTest {
       
       println "tasks: $project.tasks"
         
-      GenerateBuildConfigTask t = project.tasks.getByName "generateBuildConfig"
-        
-      assertThat (t.appName).isEqualTo ("testProject")
-      assertThat (t.version).isEqualTo ("meineVersion")
-      assertThat (t.packageName).isEqualTo ("de.testpackage")
-      assertThat (t.clsName).isEqualTo ("BuildConfig")
-      assertThat (t.classFields).isEmpty ()
+      GenerateBuildConfigTask gTask = project.tasks.getByName "generateBuildConfig"
+
+      assertThat (gTask.appName).isEqualTo ("testProject") // Default: Projektname
+      assertThat (gTask.version).isEqualTo ("meineVersion")
+      assertThat (gTask.packageName).isEqualTo ("de.testpackage")
+      assertThat (gTask.clsName).isEqualTo ("BuildConfig") // Default: BuildConfig
+      assertThat (gTask.classFields).isEmpty ()
+
+      JavaCompile cTask = project.tasks.getByName "compileBuildConfig"
+      
+      final Set<Object> cDeps = cTask.getDependsOn()
+      
+      /* compileBuildConfigTask depends on generateBuildConfigTask */
+      assertThat (cDeps.any {Object o ->
+         o == gTask
+      }).isTrue ();
+      
+      /* compileBuildConfigTask depends on source files */
+      assertThat (cDeps.any {Object o ->
+         o in FileCollection && (o as FileCollection).source == (cTask.inputs.inputFiles + cTask.inputs.sourceFiles).source
+      }).isTrue ();
+     
+      /* compile configuration depends on generated classes output dir, resolved */
+      assertThat (project.configurations.getByName ("compile").dependencies.any { Dependency dep ->
+         dep in FileCollectionDependency && (dep as FileCollectionDependency).resolve ().any { File f ->
+            f.path.endsWith ('\\buildConfigClasses\\main')
+         }
+      }).isTrue ()
    }
-   
+      
    @After
    public void tearDown() {
    }

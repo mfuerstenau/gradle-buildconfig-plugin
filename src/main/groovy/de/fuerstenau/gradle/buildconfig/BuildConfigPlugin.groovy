@@ -33,6 +33,7 @@ import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.PluginManager
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -86,19 +87,20 @@ class BuildConfigPlugin implements Plugin<Project>
       }
    }
 
-   private SourceSet getSourceSet (SourceSetConfig cfg)
+   private void assertSourceSet (SourceSetConfig cfg)
    {
+      final SourceSet sourceSet
       try
       {
-         p.convention.getPlugin (JavaPluginConvention).sourceSets
-         .getByName (cfg.name)
+         sourceSet = p.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (cfg.name)
       }
       catch (UnknownDomainObjectException ex)
       {
-         throw new GradleException (
-                    "SourceSet <${cfg.name}> not found.", ex)
-                
+         throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
       }
+      
+      if (sourceSet == null)
+         throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
    }
 
    private static String getTaskName (String prefix, String sourceSetName,
@@ -109,6 +111,37 @@ class BuildConfigPlugin implements Plugin<Project>
             "${prefix}${sourceSetName.capitalize()}${suffix}"
    }
 
+   
+   private GenerateBuildConfigTask createGenerateTask (Project p , SourceSetConfig cfg)
+   {
+      final String generateTaskName = getTaskName ("generate", cfg.name, "BuildConfig")
+      
+      final GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
+         /* configure generate task with values from the extension */
+         packageName = cfg.packageName ?: p.group ?: DEFAULT_PACKAGENAME
+         clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
+         appName = cfg.appName ?: p.name
+         version = cfg.version ?: p.version
+         cfg.buildConfigFields.values().each { ClassField cf ->
+            addClassField cf
+         }
+      }
+      return generate
+   }
+   
+   private JavaCompile createCompileTask (Project p , SourceSetConfig cfg, GenerateBuildConfigTask generate)
+   {
+      final String compileTaskName = getTaskName ("compile", cfg.name, "BuildConfig")
+      
+      final JavaCompile compile = p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
+         /* configure compile task */
+         classpath = p.files ()
+         destinationDir = new File ("${p.buildDir}/${FD_CLASS_OUTPUT}/${cfg.name}")
+         source = generate.outputDir
+      }
+      return compile
+   }
+   
    @Override
    void apply (Project p)
    {
@@ -120,47 +153,22 @@ class BuildConfigPlugin implements Plugin<Project>
 
       /* evaluate the configuration closure */
       p.afterEvaluate {
+         getSourceSetConfigs ().each { SourceSetConfig cfg ->
+            assertSourceSet (cfg)
+            final Configuration compileCfg = getCompileConfiguration (cfg)
+
+            final GenerateBuildConfigTask generate = createGenerateTask (p, cfg)
             
-         getSourceSetConfigs ().each { cfg ->
-            Configuration compileCfg = getCompileConfiguration (cfg)
-            SourceSet sourceSet = getSourceSet (cfg)
+            LOG.info ("Created task <{}> for sourceSet <{}>.", generate.name, cfg.name)
 
-            String generateTaskName = getTaskName ("generate",
-               sourceSet.name, "BuildConfig")
-            String compileTaskName = getTaskName ("compile",
-               sourceSet.name, "BuildConfig")
-
-            GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
-               /* configure generate task with values from the extension */
-               packageName = (cfg.packageName ?: p.group) ?: DEFAULT_PACKAGENAME
-               clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
-               appName = cfg.appName ?: p.name
-               version = cfg.version ?: p.version
-               cfg.buildConfigFields.values().each { ClassField cf ->
-                  addClassField cf
-               }
-            }
-                
-            LOG.debug  "Created task <{}> for sourceSet <{}>.",
-            generateTaskName, cfg.name
-
-            JavaCompile compile =
-            p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
-               /* configure compile task */
-               classpath = p.files ()
-               destinationDir = new File ("${p.buildDir}/${FD_CLASS_OUTPUT}/${cfg.name}")
-               source = generate.outputDir
-            }
-            LOG.debug  "Created compiling task <{}> for sourceSet <{}>",
-            compileTaskName,
-            cfg.name
+            final JavaCompile compile = createCompileTask (p, cfg, generate)
+            
+            LOG.info ("Created compiling task <{}> for sourceSet <{}>", compile.name, cfg.name)
 
             /* add dependency for sourceset compile configturation */
-            compileCfg.dependencies.add (p.dependencies.create (
-                  compile.outputs.files))
+            compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
                 
-            LOG.debug "Added task <{}> output files as dependency for " +
-                    "configuration <{}>", compileTaskName, compileCfg.name
+            LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
          }
          LOG.debug "BuildConfigPlugin loaded"
       }
