@@ -30,31 +30,43 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode
 final class ClassFieldImpl implements ClassField
 {
-    final String type
-    final String name
-    final String value
-    final Set<String> annotations
-    final String documentation
+   private static final long serialVersionUID = 1L;
+   
+   final String type
+   final String name
+   final String value
+   final Set<String> annotations
+   final String documentation
 
-    ClassFieldImpl (String type, String name, String value)
-    {
-        this (type, name, value, Collections.<String>emptySet (), "")
-    }
+   ClassFieldImpl (String type, String name, String value)
+   {
+      this (type, name, value, Collections.<String>emptySet (), "")
+   }
 
-    ClassFieldImpl (String type, String name, String value,
-        Set<String> annotations, String documentation)
-    {
-        this.type = type
-        this.name = name
-        this.value = value
-        this.annotations = Collections.unmodifiableSet (
-            new LinkedHashSet<> (annotations))
-        this.documentation = documentation
-    }
+   ClassFieldImpl (String type, String name, String value,
+      Set<String> annotations, String documentation)
+   {
+      this.type = type
+      this.name = name
+      this.value = value
+      this.annotations = Collections.unmodifiableSet (
+         new LinkedHashSet<> (annotations))
+      this.documentation = documentation
+   }
 
-    ClassFieldImpl (ClassField classField)
-    {
-        this (classField.type, classField.name, classField.value,
-            classField.annotations, classField.documentation)
-    }
+   ClassFieldImpl (ClassField classField)
+   {
+      this (classField.type, classField.name, classField.value,
+         classField.annotations, classField.documentation)
+   }
+    
+   @SuppressWarnings('unused')
+   private static void writeObject(ObjectOutputStream s) throws IOException {
+      s.defaultWriteObject();
+   }
+
+   @SuppressWarnings('unused')
+   private static void readObject(ObjectInputStream s) throws IOException {
+      s.defaultReadObject();
+   }
 }

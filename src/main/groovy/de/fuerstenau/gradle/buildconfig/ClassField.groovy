@@ -25,7 +25,7 @@ package de.fuerstenau.gradle.buildconfig
 /**
  * @author Malte Fürstenau
  */
-interface ClassField
+interface ClassField extends Serializable
 {
     String getType ()
 

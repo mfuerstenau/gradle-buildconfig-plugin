@@ -167,6 +167,10 @@ class BuildConfigPlugin implements Plugin<Project>
 
             /* add dependency for sourceset compile configturation */
             compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
+            
+//            p.tasks.getByName ('classes').dependsOn (compile)
+                
+            compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
                 
             LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
          }

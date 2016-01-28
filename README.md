@@ -1,12 +1,13 @@
-# Gradle BuildConfig plugin for Java/Groovy projects
-Provides one or multiple classes (per source set) generated and compiled by
-the build script (`build.gradle`) containing constants (`static final`) with
-info from the build, like version (`BuildConfig.VERSION`) or name
-(`BuildConfig.NAME`) or any other information.
+# BuildConfig plugin for Gradle Java/Groovy projects
+
+Generates a build config class that contains constants (like version or debug
+flags) set by the build script and can be read from within the Java or Groovy
+code.
 
 # Requirements
 
-The `java` or `groovy` plugin needs to be applied prior to this plugin.
+The `java` or `groovy` (which implicates `java` plugin) plugin needs to be
+applied prior to this plugin.
 
 # Download
 
@@ -39,6 +40,60 @@ plugins {
 # Usage
 
 ## Basics
+
+The plugin provides a configuration closure `buildScript`. If this `buildScript`
+closure is missing from the `build.gradle` or if it is empty, nothing will
+happen.
+
+A buildconfig contains a few default constants that cannot be omitted and will
+have default values unless set to other values. These are
+
+* `VERSION` (type: `String`) containing the version, if not
+  set explicitly defaults to the gradle project version,
+
+* `NAME` (type: `String`) containing the name of the project/app, if not
+  set explicitly defaults to the gradle project name.
+
+The `buildScript` closure provides properties to set the values of these
+constants and configure the `BuildScript` class further.
+
+* `appName`: value of `NAME` (default: `project.version`),
+* `version`: value of `VERSION` (default: `project.name`),
+* `packageName` the package of the `BuildConfig` class (default: `de.fuerstenau.buildconfig`),
+* `clsName` the name of the build config class (default: `BuildConfig`).
+
+If any of the properties is set inside the `buildConfig` closure the plugin will
+create two tasks `generateBuildConfig` and `compileBuildConfig` (depends on the
+former) and will make the `compile` configuration dependent on the outputs of
+`compileBuildConfig` task. That happens in the background and whenever the
+project is compiled the two tasks are run prior if needed.
+
+```
+buildConfig {
+   appName = 'Test App'
+   version = '1.0-SNAPSHOT'
+   packageName = 'org.sample'
+   clsName = 'MyConfig'
+}
+```
+
+will create a class like 
+
+```
+package org.sample;
+
+public final class MyConfig
+{
+   private MyConfig ()
+   {
+   }
+
+   public final String VERSION = "1.0-SNAPSHOT";
+   public final String NAME = "Test App";
+}
+```
+Of course the class is compiled and added as dependency, but the temporary
+source code is still visible in the build directory.
 
 By default the plugin does _nothing_. Yes, that is right. Because of the
 different combinations of source sets (introduced by `java`/`groovy`-plugin) a
