@@ -106,10 +106,10 @@ class BuildConfigPluginTest {
          o in FileCollection && (o as FileCollection).source == (cTask.inputs.inputFiles + cTask.inputs.sourceFiles).source
       }).isTrue ();
      
-      /* compile configuration depends on generated classes output dir, resolved */
+        /* compile configuration depends on generated classes output dir, resolved */
       assertThat (project.configurations.getByName ("compile").dependencies.any { Dependency dep ->
          dep in FileCollectionDependency && (dep as FileCollectionDependency).resolve ().any { File f ->
-            f.path.endsWith ('\\buildConfigClasses\\main')
+            f.path.endsWith ('\\gen\\buildconfig\\classes\\main')
          }
       }).isTrue ()
    }
