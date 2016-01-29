@@ -49,9 +49,9 @@ pluginBundle {
     // another plugin
     buildConfigPlugin {
       id = 'de.fuerstenau.buildconfig'
-      displayName = 'Java/Groovy BuildConfig plugin'
-      description = 'Provides per SourceSet BuildConfig static class for gradle Java/Groovy projects'
-      tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset', 'groovy']
+      displayName = 'Build config plugin for Gradle Java and Groovy projects'
+      description = 'A build config is a generated class holding constants set by the build script. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.'
+      tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset', 'groovy', 'constants']
       version = project.version
     }
   }

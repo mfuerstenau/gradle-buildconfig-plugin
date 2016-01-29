@@ -1,6 +1,6 @@
 # Build config plugin for Gradle Java and Groovy projects
 ## What is a build config
-A build config is a generated class holding constants set by the build script that. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.
+A build config is a generated class holding constants set by the build script. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.
 
 ## TLDR;
 ```gradle
