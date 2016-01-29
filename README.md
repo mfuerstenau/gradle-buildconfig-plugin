@@ -11,7 +11,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
   }
 }
 /* this example is for a Java project */
@@ -58,7 +58,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
   }
 }
 
@@ -67,7 +67,7 @@ apply plugin: 'de.fuerstenau.buildconfig'
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.0.6'
+  id 'de.fuerstenau.buildconfig' version '1.1.0'
 }
 ```
 ### Basic configuration
