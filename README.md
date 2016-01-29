@@ -1,228 +1,263 @@
-# BuildConfig plugin for Gradle Java/Groovy projects
+# Build config plugin for Gradle Java and Groovy projects
+## What is a build config
+A build config is a generated class holding constants set by the build script that. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.
 
-Generates a build config class that contains constants (like version or debug
-flags) set by the build script and can be read from within the Java or Groovy
-code.
-
-# Requirements
-
-The `java` or `groovy` (which implicates `java` plugin) plugin needs to be
-applied prior to this plugin.
-
-# Download
-
-Build script snippet for use in all Gradle versions:
-
+## TLDR;
 ```gradle
 buildscript {
   repositories {
     maven {
-      url "https://plugins.gradle.org/m2/"
+      url 'https://plugins.gradle.org/m2/'
     }
   }
   dependencies {
-    classpath "gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6"
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6'
+  }
+}
+/* this example is for a Java project */
+apply plugin: 'java'
+apply plugin: 'de.fuerstenau.buildconfig'
+
+/* ... some other stuff like dependencies */
+
+/* closure needs to be present for build config to be created, build config is
+ * created for "main" source set that way */
+buildConfig {
+   /* these set the values of the two default fields VERSION and NAME */
+   version = '1.0.1' // default: project.version
+   appName = 'some app name' // default: project.name
+   /* the package can be set */
+   packageName = 'org.sample.buildconfig'  // default: project.group or "de.fuerstenau.buildconfig"
+   /* the class name can also be changed */
+   clsName = 'MyBuildConfig' // default: BuildConfig
+   /* additional fields are possible, garbage can be put, careful, no checking
+    * except compiler, simple templating really */
+   buildConfigField 'boolean', IS_DEBUG', 'true'
+}
+```
+and the usage of the generated class
+```java
+package org.sample.buildconfig;
+public class Main {
+   public static void main (String[] args) {
+      /* the build config is accessible from the app */
+      System.out.println (MyBuildConfig.NAME + ' ' + MyBuildConfig.VERSION +
+              "(debug: " + MyBuildConfig.IS_DEBUG ? "enabled" : "disabled" + ')');
+   }
+}
+```
+
+## Basic usage
+### Apply plugin
+Build script snippet for use in all Gradle versions:
+```gradle
+buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.0.6'
   }
 }
 
-apply plugin: "de.fuerstenau.buildconfig"
-```
-
-Build script snippet for new, incubating, plugin mechanism introduced in Gradle
-2.1:
-
+apply plugin: 'de.fuerstenau.buildconfig'
+```java
+Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
-  id "de.fuerstenau.buildconfig" version "1.0.6"
+  id 'de.fuerstenau.buildconfig' version '1.0.6'
 }
 ```
+### Basic configuration
 
-# Usage
+The plugin provides a `buildConfig` closure to set general properties. If not present in the build script, nothing will happen, no build config is generated or compiled. If at least an empty `buildConfig` closure is present, a build config for the `main` source set will be created upon compilation (of course with default values).
 
-## Basics
+A build config class by default has the name `BuildConfig` and will have to constants that are always present. These are
 
-The plugin provides a configuration closure `buildScript`. If this `buildScript`
-closure is missing from the `build.gradle` or if it is empty, nothing will
-happen.
+* `NAME`, (type: `java.lang.String`) the name of the application or lib or project (default: `project.name`),
+* `VERSION` (type: `java.lang.String`), the version of the project (default: `project.version`).
 
-A buildconfig contains a few default constants that cannot be omitted and will
-have default values unless set to other values. These are
+As  written above the class name defaults to `BuildConfig` and the _package_ defaults to `project.group` or if not set to `de.fuerstenau.buildconfig`.
 
-* `VERSION` (type: `String`) containing the version, if not
-  set explicitly defaults to the gradle project version,
+The basic properties of the `buildConfig` closure are
+* `appName`, sets the value of `NAME`,
+* `version`, sets the value of `VERSION`,
+* `clsName`, sets the class name,
+* `packageName`, sets the package name.
 
-* `NAME` (type: `String`) containing the name of the project/app, if not
-  set explicitly defaults to the gradle project name.
+### How it works
+There are two tasks that are created for a build config. One generates the java source code the other compiles it. The generating task is named `generateBuildConfig` and the compiling task name is named `compileBuildConfig`. The compiling task depends upon the generating task output and the configuration `compile` is made dependent on the outputs of `compileBuildConfig` task.
 
-The `buildScript` closure provides properties to set the values of these
-constants and configure the `BuildScript` class further.
+* configuration `compile` depends on `generateBuildConfig`,
+* `generateBuildConfig` depends on `generateBuildConfig`.
 
-* `appName`: value of `NAME` (default: `project.version`),
-* `version`: value of `VERSION` (default: `project.name`),
-* `packageName` the package of the `BuildConfig` class (default: `de.fuerstenau.buildconfig`),
-* `clsName` the name of the build config class (default: `BuildConfig`).
-
-If any of the properties is set inside the `buildConfig` closure the plugin will
-create two tasks `generateBuildConfig` and `compileBuildConfig` (depends on the
-former) and will make the `compile` configuration dependent on the outputs of
-`compileBuildConfig` task. That happens in the background and whenever the
-project is compiled the two tasks are run prior if needed.
-
-```
+**Example:** A simple `buildConfig` closure, overriding only the `version`:
+```gradle
+project.name = 'MyProject'
+project.group = 'de.fuerstenau.myproject'
+...
 buildConfig {
-   appName = 'Test App'
-   version = '1.0-SNAPSHOT'
-   packageName = 'org.sample'
-   clsName = 'MyConfig'
+   version = '1.0-SPECIAL'
 }
 ```
+results in a build config class:
+```java
+package de.fuerstenau.myproject;
 
-will create a class like 
-
+public final class BuildConfig {
+   private BuildConfig () {}
+   public static final String NAME = "MyProject";
+   public static final String VERSION = "1.0-SPECIAL";
+}
 ```
-package org.sample;
+which could be used like this:
+```java
+ /* Note: we are in the same package as the BuildConfig class */
+package de.fuerstenau.myproject;
 
-public final class MyConfig
-{
-   private MyConfig ()
-   {
+public class Main {
+   public static void main (String[] args) {
+      System.out.println (BuildConfig.NAME + ' ' + BuildConfig.VERSION);
    }
-
-   public final String VERSION = "1.0-SNAPSHOT";
-   public final String NAME = "Test App";
+```
+**Example:** A `buildConfig` closure, overriding everything:
+```gradle
+buildConfig {
+   version = '0.0.1'
+   appName = 'MySuperApp'
+   clsName = 'MySuperBuildConfig'
+   packageName = 'org.my.sample'
 }
 ```
-Of course the class is compiled and added as dependency, but the temporary
-source code is still visible in the build directory.
+results in a build config class:
+```java
+package org.my.sample;
 
-By default the plugin does _nothing_. Yes, that is right. Because of the
-different combinations of source sets (introduced by `java`/`groovy`-plugin) a
-project can hold, there would be the potential to mess things up by having a
-default _build config_ included by simply applying the plugin.
-
-`Build configs` are configured using the `buildConfig` closure, containing a
-`sourceSets` closure and then for every source set an own configuration closure.
-The simplest closure would look like this:
+public final class MySuperBuildConfig {
+   private MySuperBuildConfig () {}
+   public static final String NAME = "MySuperApp";
+   public static final String VERSION = "0.0.1";
+}
+```
+## Source sets
+As stated above the general `buildConfig` closure creates a build config for the `main` source set. The `sourceSets` nested closure allows to add build config classes for multiple source sets.
 
 ```gradle
 buildConfig {
-  sourceSets {
-    main {
-    }
-  }
+   sourceSets {
+      main
+      otherSourceSet
+   }
 }
 ```
+will create build configs for both source sets. As no value is defined in the `buildConfig` closure the default values will be used.
 
-`main` is the default source set introduced by the `java` plugin for gradle.
-If no further configuration is made, the _build config_ uses the defaults (see
-[Defaults](/Defaults/)).
+**Note:** If the `sourceSets` closure is used the build config for `main` is **no more automatically** added. Adding a non-existing source set will fail the build. Omitting an existing source set will not create a build config for this source set.
 
-At the moment there are these properties to configure:
-
-* `packageName` (package of the build config class, default: `project.group`),
-* `clsName` (class of the build config class, default: `BuildConfig`),
-* `appName` (name of the app, default: `project.name`),
-* `version` (version of the app, default: `project.version`).
-
-The following closure would configure the _build config_ for the `main` source
-set to use _Supercool App_ as name, and using the project version (set to `1.0`
-earlier) in combination with a custom suffix. Also the package for the
-_build config_ class is changed to `de.fuerstenau.somepackage`.
-
+**Example**: A `buildconfig` closure, that only creates a build config for source set `otherSourceSet`:
 ```gradle
-group = 'org.acme'
-version = '1.0'
-
 buildConfig {
-  sourceSets {
-    main {
-      packageName = 'de.fuerstenau.somepackage'
-      appName = 'Supercool App'
-      version = version + '-ALPHA'
-    }
-  }
-}
-```
-
-The result would be a class
-
-```java
-package de.fuerstenau.somepackage;
-
-public final class BuildConfig
-{
-  public static final String VERSION = "1.0-ALPHA";
-  public static final String NAME = "Supercool App";
-}
-```
-
-which then could be referenced in the app like this
-
-```java
-import de.fuerstenau.somepackage.BuildConfig;
-
-public class HelloWorld
-{
-   public static void main (String[] args)
-   {
-      System.out.println (BuildConfig.NAME);
-      System.out.println (BuildConfig.VERSION);
+   version = '1.0-alpha'
+   sourceSets {
+      otherSourceSet
    }
 }
 ```
 
-## Custom fields
-
-Custom fields can be added via `buildConfigField` method which takes the type,
-the name and the value of the custom field as parameter. All parameters have to
-be given as strings (and escaped if necessary, single `String` and `char`
-values being the exception).
-
-```gradle
-buildConfigField "type", "name", "value"
-```
-For example, some custom fields:
+Properties can be set for each source set and in general. Specific properties will override general properties:
 
 ```gradle
 buildConfig {
-  sourceSets {
-    main {
-      buildConfigField "boolean", "IS_DEBUG", "false"
-      buildConfigField "String", "SECRET_WORD", "Hinterland"
-      buildConfigField "char", "MYCHAR", "a"
-    }
-  }
+   version = '1.0-alpha'
+   sourceSets {
+      main {
+         clsName = 'MainConfig'
+      }
+      otherSourceSet {
+         version = '2.0-beta'
+      }
+   }
 }
 ```
 
-Any types can be referenced, the plugin will not make any imports, therefore
-fully qualifierd names have to be used.
+The tasks created for source sets other than `main` will be named `generate<SourceSet>BuildConfig` and `compile<SourceSet>BuildConfig` (`<sourceSet>` being the name of the source set). The configuration used for dependency will be `compile<SourceSet>` (`<SourceSet>` as above).
 
-*Any garbage entered will likely lead to uncompilable code*
+## Additional fields
+The `buildConfigField (String, String, String)` method allows for additional fields. **First parameter is the _type_** (_Java type_ to be exact), **second parameter is the name** (use uppercase these fields are defined as `static final`), and the **third is value**. Any type is allowed but the plugin uses simple templating therefore entering any garbage will result in build failure.
 
-## Manual Wiring
+It can be used inside the general closure or a specific source set closure:
+```gradle
+buildConfig {
+   version = '1.0'
+   /* using Java style parentheses */
+   buildConfigField ('String', 'MY_STRING', 'some string value')
+   /* primitives can be used, too,
+    * Note: no parentheses as Gradle is Groovy */
+   buildConfigField 'int', 'MY_INT', '23'
+   /* assume there is an enum "org.sample.Option" with constant "SIMPLE"
+    * it can be used as long as fully qualified path is provided because there are
+    * no imports */
+   buildConfigField 'org.sample.Option', 'MY_ENUM', 'org.sample.Option.SIMPLE'
+   sourceSets {
+      main
+      /* assume there is another source set */
+      otherSourceSet {
+         buildConfigField 'String', 'SECRET_STR', 'haha secret'
+         buildConfigField 'int', 'MY_INT', '42'
+      }
+   }
+}
+```
+The result will be a build config for `main` source set like
+```java
+/* assume there is no "project.group" defined */
+package de.fuerstenau.buildconfig;
+public final class BuildConfig {
+   private BuildConfig () {};
+   public static final String NAME = "...";  /* project.name */
+   public static final String VERSION = "1.0";
+   public static final String MY_STRING = "some string value";
+   public static final String MY_INT = 23;
+   public static final org.sample.Option MY_ENUM = org.sample.Option.SIMPLE;
+}
+```
+and a build config for `otherSourceSet`:
+```java
+/* assume there is no "project.group" defined */
+package de.fuerstenau.buildconfig;
+public final class BuildConfig {
+   private BuildConfig () {};
+   ...
+   /* everything from the general closure plus the one from the specific
+    * source set closure and the "MY_INT" value is overridden */
+   public static final org.sample.Option MY_ENUM = org.sample.Option.SIMPLE;
+   public static final String MY_INT = 42;
+}
+```
+The plugin is a bit smart here and checks for types `String` and `char` and adds `""` or `''` respectively.
 
-It is also possible to not use the _buildConfig_ configuration closure and
-create and wire the tasks manually. The plugin does this automatically for
-every source set after evaluating the configuration closure.
+## Known side effects
+The configuration `compile` or any other `compile<SourceSet>` configuration must not be resolved before the `buildConfig` closure or else the build fails because a resolved configuration may not have a dependency added. Try moving the `buildConfig` closure a bit up in the build script.
 
-It creates a `de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask` and
-uses its outputs as inputs for a `JavaCompile` task and adds the outputs of the
-latter as dependency for the `compile` configuration for the source set, and
-also adds them to the source set outputs. That way the _build config_ is
-included in the artifact _jar_.
+## Build files
+As stated above the tasks of `de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask` as created and configured by the plugin default to `${buildDir}/gen/buildconfig/<sourceSetName>/src` for sources and `${buildDir}/gen/buildconfig/<SourceSet>/classes` for the compiled generated sources (with `<SourceSet>` being the name of the source set).
 
-Here is an example of manual wiring:
-
+## Advanced usage (not preferred)
+### Manual creation of tasks and wiring
 ```gradle
 task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
-    appName = "SuperTrooperStarshipApp"
-    version = "1.1.2"
+    appName = 'SuperTrooperStarshipApp'
+    version = '1.1.2'
+    clsName = 'MainConfig'
+    packageName = 'org.sample'
+    outputDir = new File ("${buildDir}/gen/buildconfig/src/main/")
 }
 
 task compileBuildConfig(type:JavaCompile, dependsOn: generateBuildConfig) {
-    classpath = files () // empty file collection
-    destinationDir = new File("${buildDir}/generatedClasses/main")
+    classpath = files () /* empty files suffices */
+    destinationDir = new File ("${buildDir}/gen/buildconfig/classes/main/")
     source = generateBuildConfig.outputDir
 }
 
@@ -232,15 +267,3 @@ afterEvaluate {
     }
 }
 ```
-
-# Defaults
-
-The default values for a _build config_ source set configuration closure are
-
-* `appName` defaults to the project name,
-* `version` defaults to the project version,
-* `packageName` defaults to the project group or `de.fuerstenau.buildconfig`
-  if group was not defined.
-
-A resulting `BuildConfig` class will have the constants `NAME` and `VERSION`
-( both type `String`).
