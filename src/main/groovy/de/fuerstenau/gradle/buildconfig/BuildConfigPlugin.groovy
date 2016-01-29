@@ -44,181 +44,168 @@ import org.slf4j.LoggerFactory
 class BuildConfigPlugin implements Plugin<Project>
 {
 
-   static final String MAIN_SOURCESET = "main"
-   static final String FD_SOURCE_OUTPUT = "buildConfigSources"
-   static final String FD_CLASS_OUTPUT = "buildConfigClasses"
-   static final String DEFAULT_EXTENSION_NAME = "buildConfig"
-   static final String DEFAULT_CLASS_NAME = "BuildConfig"
-   static final String DEFAULT_SOURCESET = MAIN_SOURCESET
-   static final String DEFAULT_NAME_FIELDNAME = "NAME"
-   static final String DEFAULT_VERSION_FIELDNAME = "VERSION"
-   static final String DEFAULT_PACKAGENAME = "de.fuerstenau.buildconfig"
+    static final String MAIN_SOURCESET = "main"
+    static final String FD_SOURCE_OUTPUT = "gen/buildconfig/src"
+    static final String FD_CLASS_OUTPUT = "gen/buildconfig/classes"
+    static final String DEFAULT_EXTENSION_NAME = "buildConfig"
+    static final String DEFAULT_CLASS_NAME = "BuildConfig"
+    static final String DEFAULT_SOURCESET = MAIN_SOURCESET
+    static final String DEFAULT_NAME_FIELDNAME = "NAME"
+    static final String DEFAULT_VERSION_FIELDNAME = "VERSION"
+    static final String DEFAULT_PACKAGENAME = "de.fuerstenau.buildconfig"
 
-   private static final Logger LOG = LoggerFactory.getLogger (
-      BuildConfigPlugin.class.getCanonicalName ())
+    private static final Logger LOG = LoggerFactory.getLogger (
+        BuildConfigPlugin.class.getCanonicalName ())
 
-   private Project p
+    private Project p
     
-   /**
-    * Return default if value is <i>null</i>.
-    *
-    * @param <T> Type of value
-    * @param mayBeNull Value
-    * @param defaultValue Default
-    * @return value or <i>null</i> if value was null
-    */
-   static <T> T defaultIfNull (T mayBeNull, T defaultValue)
-   {
-      mayBeNull != null ? mayBeNull : defaultValue
-   }
-
-   private Configuration getCompileConfiguration (SourceSetConfig cfg)
-   {
-      String configurationName = MAIN_SOURCESET.equals (cfg.name) ?\
+    private Configuration getCompileConfiguration (SourceSetConfig cfg)
+    {
+        String configurationName = MAIN_SOURCESET.equals (cfg.name) ?\
             "compile" : "${cfg.name}Compile"
-      try
-      {
-         p.configurations.getByName (configurationName)
-      }
-      catch (UnknownConfigurationException ex)
-      {
-         throw new GradleException (
+        try
+        {
+            p.configurations.getByName (configurationName)
+        }
+        catch (UnknownConfigurationException ex)
+        {
+            throw new GradleException (
                 "Configuration <${configurationName}> not found.", ex)
-      }
-   }
+        }
+    }
 
-   private void assertSourceSet (SourceSetConfig cfg)
-   {
-      final SourceSet sourceSet
-      try
-      {
-         sourceSet = p.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (cfg.name)
-      }
-      catch (UnknownDomainObjectException ex)
-      {
-         throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
-      }
+    private void assertSourceSet (SourceSetConfig cfg)
+    {
+        final SourceSet sourceSet
+        try
+        {
+            sourceSet = p.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (cfg.name)
+        }
+        catch (UnknownDomainObjectException ex)
+        {
+            throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
+        }
       
-      if (sourceSet == null)
-         throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
-   }
+        if (sourceSet == null)
+        throw new GradleException ("SourceSet <${cfg.name}> not found.", ex)
+    }
 
-   private static String getTaskName (String prefix, String sourceSetName,
-      String suffix)
-   {
-      MAIN_SOURCESET.equals (sourceSetName) ?\
+    private static String getTaskName (String prefix, String sourceSetName,
+        String suffix)
+    {
+        MAIN_SOURCESET.equals (sourceSetName) ?\
             "${prefix}${suffix}" :
             "${prefix}${sourceSetName.capitalize()}${suffix}"
-   }
+    }
 
    
-   private GenerateBuildConfigTask createGenerateTask (Project p , SourceSetConfig cfg)
-   {
-      final String generateTaskName = getTaskName ("generate", cfg.name, "BuildConfig")
+    private GenerateBuildConfigTask createGenerateTask (Project p , SourceSetConfig cfg)
+    {
+        final String generateTaskName = getTaskName ("generate", cfg.name, "BuildConfig")
       
-      final GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
-         /* configure generate task with values from the extension */
-         packageName = cfg.packageName ?: p.group ?: DEFAULT_PACKAGENAME
-         clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
-         appName = cfg.appName ?: p.name
-         version = cfg.version ?: p.version
-         cfg.buildConfigFields.values().each { ClassField cf ->
-            addClassField cf
-         }
-      }
-      return generate
-   }
+        final GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
+            /* configure generate task with values from the extension */
+            packageName = cfg.packageName ?: p.group ?: DEFAULT_PACKAGENAME
+            clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
+            appName = cfg.appName ?: p.name
+            version = cfg.version ?: p.version
+            cfg.buildConfigFields.values().each { ClassField cf ->
+                addClassField cf
+            }
+        }
+        return generate
+    }
    
-   private JavaCompile createCompileTask (Project p , SourceSetConfig cfg, GenerateBuildConfigTask generate)
-   {
-      final String compileTaskName = getTaskName ("compile", cfg.name, "BuildConfig")
+    private JavaCompile createCompileTask (Project p , SourceSetConfig cfg, GenerateBuildConfigTask generate)
+    {
+        final String compileTaskName = getTaskName ("compile", cfg.name, "BuildConfig")
       
-      final JavaCompile compile = p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
-         /* configure compile task */
-         classpath = p.files ()
-         destinationDir = new File ("${p.buildDir}/${FD_CLASS_OUTPUT}/${cfg.name}")
-         source = generate.outputDir
-      }
-      return compile
-   }
+        final JavaCompile compile = p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
+            /* configure compile task */
+            classpath = p.files ()
+            destinationDir = new File ("${p.buildDir}/${FD_CLASS_OUTPUT}/${cfg.name}")
+            source = generate.outputDir
+        }
+        return compile
+    }
    
-   @Override
-   void apply (Project p)
-   {
-      this.p = p
-      p.apply plugin: 'java'
+    @Override
+    void apply (Project p)
+    {
+        this.p = p
+        p.apply plugin: 'java'
 
-      /* create the configuration closure */
-      p.extensions.create (DEFAULT_EXTENSION_NAME, BuildConfigExtension, p)
+        /* create the configuration closure */
+        p.extensions.create (DEFAULT_EXTENSION_NAME, BuildConfigExtension, p)
 
-      /* evaluate the configuration closure */
-      p.afterEvaluate {
-         getSourceSetConfigs ().each { SourceSetConfig cfg ->
-            assertSourceSet (cfg)
-            final Configuration compileCfg = getCompileConfiguration (cfg)
+        /* evaluate the configuration closure */
+        p.afterEvaluate {
+            getSourceSetConfigs ().each { SourceSetConfig cfg ->
+                assertSourceSet (cfg)
+                final Configuration compileCfg = getCompileConfiguration (cfg)
 
-            final GenerateBuildConfigTask generate = createGenerateTask (p, cfg)
+                final GenerateBuildConfigTask generate = createGenerateTask (p, cfg)
             
-            LOG.info ("Created task <{}> for sourceSet <{}>.", generate.name, cfg.name)
-
-            final JavaCompile compile = createCompileTask (p, cfg, generate)
+                generate.outputDir = p.buildDir.toPath ()
+                .resolve (BuildConfigPlugin.FD_SOURCE_OUTPUT)
+                .resolve (cfg.name ?: DEFAULT_SOURCESET).toFile ()
             
-            LOG.info ("Created compiling task <{}> for sourceSet <{}>", compile.name, cfg.name)
+                LOG.info ("Created task <{}> for sourceSet <{}>.", generate.name, cfg.name)
 
-            /* add dependency for sourceset compile configturation */
-            compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
+                final JavaCompile compile = createCompileTask (p, cfg, generate)
             
-//            p.tasks.getByName ('classes').dependsOn (compile)
-                
-            compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
-                
-            LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
-         }
-         LOG.debug "BuildConfigPlugin loaded"
-      }
-   }
+                LOG.info ("Created compiling task <{}> for sourceSet <{}>", compile.name, cfg.name)
 
-   private List<SourceSetConfig> getSourceSetConfigs ()
-   {
-      BuildConfigExtension ext = p.extensions.getByType (BuildConfigExtension)
+                /* add dependency for sourceset compile configturation */
+                compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
+            
+                LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
+            }
+            LOG.debug "BuildConfigPlugin loaded"
+        }
+    }
+
+    private List<SourceSetConfig> getSourceSetConfigs ()
+    {
+        BuildConfigExtension ext = p.extensions.getByType (BuildConfigExtension)
         
-      List<SourceSetConfig>  res = new ArrayList<> ()
+        List<SourceSetConfig>  res = new ArrayList<> ()
         
-      if (ext.sourceSets.size () > 0)
-      {
-         ext.sourceSets.each { SourceSetConfig cfg ->
-            res.add (ext + cfg)
-         }
-      }
-      else if (ext.appName != null || ext.version != null || ext.packageName != null || ext.clsName != null || !ext.buildConfigFields.isEmpty ())
-      {
-         res.add(ext + new SourceSetConfig ("main"))
-      }
-      return res
-   }
+        if (ext.sourceSets.size () > 0)
+        {
+            ext.sourceSets.each { SourceSetConfig cfg ->
+                res.add (ext + cfg)
+            }
+        }
+        else
+        {
+            res.add(ext + new SourceSetConfig ("main"))
+        }
+        return res
+    }
 
-   static String getProjectVersion (Project p)
-   {
-      Object versionObj = p.getVersion ();
-      while (versionObj instanceof Closure)
-      versionObj = ((Closure) versionObj).call ();
-      if (versionObj instanceof String)
-      return (String) versionObj;
-      return null;
-   }
+    static String getProjectVersion (Project p)
+    {
+        Object versionObj = p.getVersion ();
+        while (versionObj instanceof Closure)
+        versionObj = ((Closure) versionObj).call ();
+        if (versionObj instanceof String)
+        return (String) versionObj;
+        return null;
+    }
 
-   static String getProjectName (Project p)
-   {
-      return p.getName ();
-   }
+    static String getProjectName (Project p)
+    {
+        return p.getName ();
+    }
 
-   static String getProjectGroup (Project p)
-   {
-      Object groupObj = p.getGroup ();
-      while (groupObj instanceof Closure)
-      groupObj = ((Closure) groupObj).call ();
-      if (groupObj instanceof String)
-      return (String) groupObj;
-      return null;
-   }
+    static String getProjectGroup (Project p)
+    {
+        Object groupObj = p.getGroup ();
+        while (groupObj instanceof Closure)
+        groupObj = ((Closure) groupObj).call ();
+        if (groupObj instanceof String)
+        return (String) groupObj;
+        return null;
+    }
 }

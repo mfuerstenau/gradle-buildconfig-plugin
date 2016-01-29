@@ -27,7 +27,6 @@ import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_NAME_FI
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_PACKAGENAME
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_SOURCESET
 import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.DEFAULT_VERSION_FIELDNAME
-import static de.fuerstenau.gradle.buildconfig.BuildConfigPlugin.defaultIfNull
 import java.nio.charset.Charset
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -50,149 +49,132 @@ import org.slf4j.LoggerFactory
 class GenerateBuildConfigTask extends DefaultTask
 {
 
-   private static final Logger LOG = LoggerFactory.getLogger (
-      BuildConfigPlugin.canonicalName)
+    private static final Logger LOG = LoggerFactory.getLogger (
+        BuildConfigPlugin.canonicalName)
 
-   /**
-    * Deletes a directory and recreates it.
-    *
-    * @param outputDir Directory
-    * @throws IOException thrown if I/O error occurs
-    */
-   private static void emptyDir (final Path outputDir) throws IOException
-   {
-      outputDir.deleteDir ()
-      outputDir.toFile().mkdirs ()
-   }
+    /**
+     * Deletes a directory and recreates it.
+     *
+     * @param outputDir Directory
+     * @throws IOException thrown if I/O error occurs
+     */
+    private static void emptyDir (final File outputDir) throws IOException
+    {
+        outputDir.toPath ().deleteDir ()
+        outputDir.mkdirs ()
+    }
 
-   @Input
-   String sourceSet
+    @Input
+    String sourceSet
 
-   @Input
-   String packageName
+    @Input
+    String packageName
 
-   @Input
-   String clsName
+    @Input
+    String clsName
 
-   @Input
-   String version
+    @Input
+    String version
 
-   @Input
-   String appName
+    @Input
+    String appName
 
-   @Input
-   final Map<String, ClassField> classFields = new LinkedHashMap<> ()
+    @OutputDirectory
+    File outputDir
 
-   GenerateBuildConfigTask ()
-   {
-      /* configure defaults */
-      version = project.version
-      packageName = project.group ?: DEFAULT_PACKAGENAME
-      clsName = DEFAULT_CLASS_NAME
-      appName = project.name
-      sourceSet = DEFAULT_SOURCESET
+    @Input
+    final Map<String, ClassField> classFields = new LinkedHashMap<> ()
+
+    GenerateBuildConfigTask ()
+    {
+        /* configure defaults */
+        version = project.version
+        packageName = project.group ?: DEFAULT_PACKAGENAME
+        clsName = DEFAULT_CLASS_NAME
+        appName = project.name
+        sourceSet = DEFAULT_SOURCESET
       
-      LOG.debug "{}: GenerateBuildConfigTask created", name
-   }
+        LOG.debug "{}: GenerateBuildConfigTask created", name
+    }
 
-   void buildConfigField (String type, String name, String value)
-   {
-      addClassField (type, name, value)
-   }
+    void buildConfigField (String type, String name, String value)
+    {
+        addClassField (type, name, value)
+    }
 
-   String getClassFieldValue (String name)
-   {
-      ClassField cf = classFields.get (name)
-      if (cf != null)
-      return cf.getValue ()
-      else
-      return null
-   }
+    String getClassFieldValue (String name)
+    {
+        ClassField cf = classFields.get (name)
+        if (cf != null)
+        return cf.getValue ()
+        else
+        return null
+    }
 
-   void addClassField (String type, String name, String value)
-   {
-      addClassField (classFields, new ClassFieldImpl (type, name, value))
-   }
+    void addClassField (String type, String name, String value)
+    {
+        addClassField (classFields, new ClassFieldImpl (type, name, value))
+    }
 
-   void addClassField (ClassField cf)
-   {
-      addClassField (classFields, cf)
-   }
+    void addClassField (ClassField cf)
+    {
+        addClassField (classFields, cf)
+    }
 
-   void addClassField (Map<String, ClassField> dest, ClassField cf)
-   {
-      ClassField alreadyPresent = dest.get (cf.name)
+    void addClassField (Map<String, ClassField> dest, ClassField cf)
+    {
+        ClassField alreadyPresent = dest.get (cf.name)
 
-      if (alreadyPresent != null)
-      {
-         LOG.debug  "{}: buildConfigField <{}/{}/{}> exists, replacing with <{}/{}/{}>",
-         name,
-         alreadyPresent.type,
-         alreadyPresent.name,
-         alreadyPresent.value,
-         cf.type,
-         cf.name,
-         cf.value
-      }
-      dest.put (cf.name, cf)
-   }
+        if (alreadyPresent != null)
+        {
+            LOG.debug  "{}: buildConfigField <{}/{}/{}> exists, replacing with <{}/{}/{}>",
+            name,
+            alreadyPresent.type,
+            alreadyPresent.name,
+            alreadyPresent.value,
+            cf.type,
+            cf.name,
+            cf.value
+        }
+        dest.put (cf.name, cf)
+    }
 
-   private Map<String, ClassField> mergeClassFields ()
-   {
-      Map<String, ClassField> merged = new LinkedHashMap<> ()
-      addClassField (merged, new ClassFieldImpl ("String", DEFAULT_VERSION_FIELDNAME, version))
-      addClassField (merged, new ClassFieldImpl ("String", DEFAULT_NAME_FIELDNAME, appName))
-      classFields.values ().forEach { cf ->
-         addClassField (merged, cf)
-      }
-      return merged
-   }
+    private Map<String, ClassField> mergeClassFields ()
+    {
+        Map<String, ClassField> merged = new LinkedHashMap<> ()
+        addClassField (merged, new ClassFieldImpl ("String", DEFAULT_VERSION_FIELDNAME, version))
+        addClassField (merged, new ClassFieldImpl ("String", DEFAULT_NAME_FIELDNAME, appName))
+        classFields.values ().forEach { cf ->
+            addClassField (merged, cf)
+        }
+        return merged
+    }
 
-   @OutputDirectory
-   public File getOutputDirAsFile ()
-   {
-      getOutputDirPath ().toFile ()
-   }
-   
-   public String getOutputDir ()
-   {
-      getOutputDirPath ().toString ()
-   }
+    private Path getOutputFile ()
+    {
+        getOutputDirPath ().resolve (clsName + ".java")
+    }
 
-   private Path getOutputDirPath ()
-   {
-      project.buildDir.toPath ()
-      .resolve (BuildConfigPlugin.FD_SOURCE_OUTPUT)
-      .resolve (sourceSet ?: DEFAULT_SOURCESET)
-   }
+    @TaskAction
+    void generateBuildConfig () throws IOException
+    {
+        LOG.debug "{}: GenerateBuildConfigTask executed.", name
+        /* buildConfig sourece file */
+        Path outputFile = outputDir.toPath ().resolve (clsName + ".java")
 
-   private Path getOutputFile ()
-   {
-      getOutputDirPath ().resolve (clsName + ".java")
-   }
-
-   @TaskAction
-   void generateBuildConfig () throws IOException
-   {
-      LOG.debug "{}: GenerateBuildConfigTask executed.", name
-      /* base dir for sources generates by this task */
-      Path outputDir = getOutputDirPath ()
-      /* buildConfig sourece file */
-      Path outputFile = getOutputFile ()
-
-      Map<String, ClassField> mergedClassFields = mergeClassFields ()
+        Map<String, ClassField> mergedClassFields = mergeClassFields ()
         
-      /*clear the output dir */
-      emptyDir (outputDir)
+        /*clear the output dir */
+        emptyDir (outputDir)
 
-      new ClassWriter (
-         Files.newBufferedWriter (outputFile, Charset.forName ("UTF-8"),
-            StandardOpenOption.CREATE)).withCloseable { w ->
-         w.writePackage (packageName).writeClass (clsName)
+        new ClassWriter (
+            Files.newBufferedWriter (outputFile, Charset.forName ("UTF-8"),
+                StandardOpenOption.CREATE)).withCloseable { w ->
+            w.writePackage (packageName).writeClass (clsName)
 
-         mergedClassFields.values ().forEach { cf ->
-            w.writeClassField cf
-         }
-      }
-   }
+            mergedClassFields.values ().forEach { cf ->
+                w.writeClassField cf
+            }
+        }
+    }
 }
