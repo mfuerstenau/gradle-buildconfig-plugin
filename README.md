@@ -246,6 +246,8 @@ As stated above the tasks of `de.fuerstenau.gradle.buildconfig.GenerateBuildConf
 
 ## Advanced usage (not preferred)
 ### Manual creation of tasks and wiring
+If `buildConfig` closure is not present, no tasks are created automatically and tasks can be created manually as it seems convenient.
+
 ```gradle
 task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
     appName = 'SuperTrooperStarshipApp'
