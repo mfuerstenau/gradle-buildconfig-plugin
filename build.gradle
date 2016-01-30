@@ -60,3 +60,10 @@ pluginBundle {
 task wrapper(type: Wrapper) {
    gradleVersion = '2.10'
 }
+
+test {
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+}

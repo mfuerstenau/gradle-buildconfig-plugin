@@ -109,7 +109,7 @@ class BuildConfigPluginTest {
         /* compile configuration depends on generated classes output dir, resolved */
       assertThat (project.configurations.getByName ("compile").dependencies.any { Dependency dep ->
          dep in FileCollectionDependency && (dep as FileCollectionDependency).resolve ().any { File f ->
-            f.path.endsWith ('\\gen\\buildconfig\\classes\\main')
+            f.path.endsWith ('\\gen\\buildconfig\\classes\\main') || f.path.endsWith ('/gen/buildconfig/classes/main')
          }
       }).isTrue ()
    }
