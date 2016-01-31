@@ -1,4 +1,14 @@
 language: groovy
-
 jdk:
   - openjdk7
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+notifications:
+  # Email notifications are disabled to not annoy anybody.
+  # See http://about.travis-ci.org/docs/user/build-configuration/ to learn more
+  # about configuring notification recipients and more.
+  email: false
