@@ -65,7 +65,7 @@ buildscript {
 }
 
 apply plugin: 'de.fuerstenau.buildconfig'
-```java
+```
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
