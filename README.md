@@ -13,7 +13,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.1'
   }
 }
 /* this example is for a Java project */
