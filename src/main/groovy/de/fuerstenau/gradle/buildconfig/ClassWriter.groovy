@@ -64,7 +64,7 @@ class ClassWriter extends Writer
       StringBuilder sb = StringBuilder.newInstance ()
       if (cf.getDocumentation () != null && !cf.getDocumentation ().isEmpty ())
          sb << "   ${cf.documentation}\n"
-      cf.annotations.forEach { annot -> sb << "   ${annot}\n" }
+      cf.annotations.each { annot -> sb << "   ${annot}\n" }
       sb << "   public static final ${cf.type} ${cf.name} = "
       switch (cf.type)
       {

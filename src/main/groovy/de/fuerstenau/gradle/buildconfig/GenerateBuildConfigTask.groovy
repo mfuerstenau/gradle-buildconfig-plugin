@@ -144,7 +144,7 @@ class GenerateBuildConfigTask extends DefaultTask
         Map<String, ClassField> merged = new LinkedHashMap<> ()
         addClassField (merged, new ClassFieldImpl ("String", DEFAULT_VERSION_FIELDNAME, version))
         addClassField (merged, new ClassFieldImpl ("String", DEFAULT_NAME_FIELDNAME, appName))
-        classFields.values ().forEach { cf ->
+        classFields.values ().each { cf ->
             addClassField (merged, cf)
         }
         return merged
@@ -172,7 +172,7 @@ class GenerateBuildConfigTask extends DefaultTask
                 StandardOpenOption.CREATE)).withCloseable { w ->
             w.writePackage (packageName).writeClass (clsName)
 
-            mergedClassFields.values ().forEach { cf ->
+            mergedClassFields.values ().each { cf ->
                 w.writeClassField cf
             }
         }
