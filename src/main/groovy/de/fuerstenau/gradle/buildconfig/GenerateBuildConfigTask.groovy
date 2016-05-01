@@ -160,12 +160,14 @@ class GenerateBuildConfigTask extends DefaultTask
     {
         LOG.debug "{}: GenerateBuildConfigTask executed.", name
         /* buildConfig sourece file */
-        Path outputFile = outputDir.toPath ().resolve (clsName + ".java")
+        Path outputFile = outputDir.toPath ()
+            .resolve (packageName.replaceAll ('\\.', '/'))
+            .resolve (clsName + ".java")
 
         Map<String, ClassField> mergedClassFields = mergeClassFields ()
         
         /*clear the output dir */
-        emptyDir (outputDir)
+        emptyDir (outputFile.parent.toFile ())
 
         new ClassWriter (
             Files.newBufferedWriter (outputFile, Charset.forName ("UTF-8"),

@@ -13,7 +13,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.1'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
   }
 }
 /* this example is for a Java project */
@@ -34,7 +34,7 @@ buildConfig {
    clsName = 'MyBuildConfig' // default: BuildConfig
    /* additional fields are possible, garbage can be put, careful, no checking
     * except compiler, simple templating really */
-   buildConfigField 'boolean', IS_DEBUG', 'true'
+   buildConfigField 'boolean', 'IS_DEBUG', 'true'
 }
 ```
 and the usage of the generated class
@@ -60,7 +60,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.0'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
   }
 }
 
@@ -69,7 +69,7 @@ apply plugin: 'de.fuerstenau.buildconfig'
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.0'
+  id 'de.fuerstenau.buildconfig' version '1.1.2-SNAPSHOT'
 }
 ```
 ### Basic configuration

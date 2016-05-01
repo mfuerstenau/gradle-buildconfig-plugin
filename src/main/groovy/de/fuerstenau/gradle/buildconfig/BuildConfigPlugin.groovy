@@ -148,7 +148,8 @@ class BuildConfigPlugin implements Plugin<Project>
             
                 generate.outputDir = p.buildDir.toPath ()
                 .resolve (BuildConfigPlugin.FD_SOURCE_OUTPUT)
-                .resolve (cfg.name ?: DEFAULT_SOURCESET).toFile ()
+                .resolve (cfg.name ?: DEFAULT_SOURCESET)
+                .toFile ()
             
                 LOG.info ("Created task <{}> for sourceSet <{}>.", generate.name, cfg.name)
 
