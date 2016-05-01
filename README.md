@@ -248,9 +248,21 @@ As stated above the tasks of `de.fuerstenau.gradle.buildconfig.GenerateBuildConf
 
 ## Advanced usage (not preferred)
 ### Manual creation of tasks and wiring
-If `buildConfig` closure is not present, no tasks are created automatically and tasks can be created manually as it seems convenient.
+If the need arises to manually create  buildconfig task, the plugin must be added as dependency but not to be applied. That way no tasks are automatically created. 
 
 ```gradle
+buildscript {
+  repositories {
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+  }
+  dependencies {
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
+  }
+}
+// apply plugin: 'de.fuerstenau.buildconfig' <- this would create tasks automatically, that must be omitted
+
 task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
     appName = 'SuperTrooperStarshipApp'
     version = '1.1.2'
