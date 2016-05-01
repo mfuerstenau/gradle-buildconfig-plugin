@@ -13,7 +13,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
   }
 }
 /* this example is for a Java project */
@@ -60,7 +60,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
   }
 }
 
@@ -69,7 +69,7 @@ apply plugin: 'de.fuerstenau.buildconfig'
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.2-SNAPSHOT'
+  id 'de.fuerstenau.buildconfig' version '1.1.2'
 }
 ```
 ### Basic configuration
@@ -261,7 +261,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
   }
 }
 // apply plugin: 'de.fuerstenau.buildconfig' <- this would create tasks automatically, that must be omitted
