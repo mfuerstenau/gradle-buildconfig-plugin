@@ -75,7 +75,7 @@ plugins {
 ### Basic configuration
 
 If applied, the plugin provides a `buildConfig` closure to set general properties.
-If no buildCOnfig configuration closure is present or at least an empty `buildConfig`
+If no buildConfig configuration closure is present or at least an empty `buildConfig`
 closure is present, a build config for the `main` source set will be created upon
  compilation (of course with default values).
 
