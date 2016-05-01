@@ -74,7 +74,10 @@ plugins {
 ```
 ### Basic configuration
 
-The plugin provides a `buildConfig` closure to set general properties. If not present in the build script, nothing will happen, no build config is generated or compiled. If at least an empty `buildConfig` closure is present, a build config for the `main` source set will be created upon compilation (of course with default values).
+If applied, the plugin provides a `buildConfig` closure to set general properties.
+If no buildCOnfig configuration closure is present or at least an empty `buildConfig`
+closure is present, a build config for the `main` source set will be created upon
+ compilation (of course with default values).
 
 A build config class by default has the name `BuildConfig` and will have to constants that are always present. These are
 
