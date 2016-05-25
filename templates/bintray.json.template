@@ -1,6 +1,6 @@
 {
     "package": {
-        "name": "buildconfig",
+        "name": "gradle-buildconfig-plugin",
         "repo": "maven",
         "subject": "mfuerstenau",
         "desc": "A gradle plugin to generate a BuildConfig class for Java and Groovy projects similar to BuildConfig known from Android projects",
