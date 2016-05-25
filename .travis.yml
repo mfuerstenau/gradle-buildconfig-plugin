@@ -1,14 +1,22 @@
 language: groovy
 jdk:
-  - openjdk7
+- openjdk7
 before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 notifications:
-  # Email notifications are disabled to not annoy anybody.
-  # See http://about.travis-ci.org/docs/user/build-configuration/ to learn more
-  # about configuring notification recipients and more.
   email: false
+before_deploy:
+  - sed -i s/\${vcs_tag}/$TRAVIS_TAG/g build/bintray.json
+deploy:
+  provider: bintray
+  user: mfuerstenau
+  file: build/bintray.json
+  dry-run: false
+  on:
+    tags: true
+  key:
+    secure: DeHYxUW4ICm/lT3m1CjnrhiAeUfmIeRoPG614/+Nik2ueMMDnUohhtX+be0SHG1PQCeIpUAa0wLH6OmrRyz8PlX618JsFrsH8Yvsa2iMSl6AFVO1J8fRRPhU4dMEUT0aJ97twwt/i/s8JCv7eUfpv/tQkPvf4PFkJGLtXCFnT45CVnL9QgGd1j/LNJYUOzOfrkO8SPQr8wPn4zqZ45T2gqqxXfex0bpwe+pQbWWqCGlo3JMZxjph6iUDfEwa5ZxG+Wqirc09kpwEa8UNk+zPHOAANpSnW8/X6xpmjaqJKTKoUXgPFbVEFBRquZsJXzPDu9PspU9GG/OutGFVy9UOBurzPyrPVuGmJmoSzkfj4/wIxEWc7f8zE/+mDv3NUhhcu1sf2X2nvEu/VQ/MlHYqc247nCWgwv9sZCWgM5CjQzhT4FaC0JRZnqwvZxJ7oPlo0SfbqlkI/kqK/EybPkp3BXTPS8h8lXjHYPZXXM5W8lHCMy51czMe9cJC6fZcOW/m2eKpgn/lHOaH8lEfqjY3yrIE+xIjS3ahe2HtQXTwzMP/Oahci/p8/FR79r9KbTVoP6AZ/lxcLjrlmiTN2syIjUTvvpFUoE7gJi771eF3CQNmYEvnyP6t6ZEowPJcrCA8Y35NxiFxrx3SkhR/rkM8EChMltfn0SXBiOQpB1lkC3w=

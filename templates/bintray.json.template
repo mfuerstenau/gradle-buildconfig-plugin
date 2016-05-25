@@ -1,0 +1,31 @@
+{
+    "package": {
+        "name": "buildconfig",
+        "repo": "maven",
+        "subject": "mfuerstenau",
+        "desc": "A gradle plugin to generate a BuildConfig class for Java and Groovy projects similar to BuildConfig known from Android projects",
+        "website_url": "https://github.com/mfuerstenau/gradle-buildconfig-plugin",
+        "issue_tracker_url": "https://github.com/issues",
+        "vcs_url": "https://github.com/mfuerstenau/gradle-buildconfig-plugin.git",
+        "github_use_tag_release_notes": true,
+        "github_release_notes_file": "RELEASE.txt",
+        "licenses": ["MIT"],
+        "labels": ["buildconfig", "gradle", "plugin", "java", "groovy", "constants", "build environment", "custom variables", "static", "android"],
+        "public_download_numbers": false,
+        "public_stats": false
+    },
+    
+    
+    "version": {
+        "name": "${version}",
+	"released": "${releasedate}",
+        "vcs_tag": "\${vcs_tag}"
+    },
+    "files":
+            [
+                {
+                    "includePattern": "build/libs/(.*\\\\.jar)", "uploadPattern" : "\$1"
+                }
+            ],
+    "publish": false
+}
