@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin)
+[ ![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
 # Build config plugin for Gradle Java and Groovy projects
 ## What is a build config
