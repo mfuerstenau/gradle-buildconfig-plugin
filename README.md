@@ -14,7 +14,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.4'
   }
 }
 /* this example is for a Java project */
@@ -61,7 +61,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.4'
   }
 }
 
@@ -70,7 +70,7 @@ apply plugin: 'de.fuerstenau.buildconfig'
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.2'
+  id 'de.fuerstenau.buildconfig' version '1.1.4'
 }
 ```
 ### Basic configuration
@@ -247,6 +247,9 @@ The plugin is a bit smart here and checks for types `String` and `char` and adds
 ## Known side effects
 The configuration `compile` or any other `compile<SourceSet>` configuration must not be resolved before the `buildConfig` closure or else the build fails because a resolved configuration may not have a dependency added. Try moving the `buildConfig` closure a bit up in the build script.
 
+## Eclipse
+Eclipse users may need to refresh the project to see the generated build config classes added to the classpath.
+
 ## Build files
 As stated above the tasks of `de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask` as created and configured by the plugin default to `${buildDir}/gen/buildconfig/<sourceSetName>/src` for sources and `${buildDir}/gen/buildconfig/<SourceSet>/classes` for the compiled generated sources (with `<SourceSet>` being the name of the source set).
 
@@ -262,7 +265,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.2'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.4'
   }
 }
 // apply plugin: 'de.fuerstenau.buildconfig' <- this would create tasks automatically, that must be omitted
