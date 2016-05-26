@@ -290,3 +290,21 @@ afterEvaluate {
     }
 }
 ```
+
+If one is using Eclipse and have the generated classes added to the Eclipse
+buildpath one add the dependency like this instead (depends on the `eclipse` gradle plugin)
+
+```gradle
+afterEvaluate {
+    dependencies {
+        compile files (compileBuildConfig.outputs.files) {
+            builtBy compileBuildConfig.name
+        }
+    }
+}
+
+compileBuildConfig.dependsOn 'eclipseClasspath'
+```
+
+A project refresh is need afterwards. The folder with the generated class files
+should be added to the eclipse `.classpath` file.
