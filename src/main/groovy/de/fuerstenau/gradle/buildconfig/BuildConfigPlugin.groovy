@@ -26,7 +26,9 @@ package de.fuerstenau.gradle.buildconfig
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.UnknownConfigurationException
@@ -37,6 +39,7 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.gradle.plugins.ide.eclipse.EclipsePlugin
 
 /**
  * @author Malte Fürstenau
@@ -157,8 +160,20 @@ class BuildConfigPlugin implements Plugin<Project>
             
                 LOG.info ("Created compiling task <{}> for sourceSet <{}>", compile.name, cfg.name)
 
+                if (p.plugins.hasPlugin ('org.gradle.eclipse'))
+                {
+                    LOG.debug ('Eclipse plugin is found. Make compile dependend on eclipse task.')
+                    try {
+                        compile.dependsOn 'eclipseClasspath'
+                    } catch (UnknownTaskException ex) {
+                        LOG.warn ('Probed for eclipse task but none is defined even though EclipsePlugin is found.')
+                    }
+                }
+                /* workaround for Eclipse, running eclipse task after will add this to classpath */
+                def compiledClasses = p.files compile.outputs.files
+                compiledClasses.builtBy compile.name
                 /* add dependency for sourceset compile configturation */
-                compileCfg.dependencies.add (p.dependencies.create (compile.outputs.files))
+                compileCfg.dependencies.add (p.dependencies.create (compiledClasses))
             
                 LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
             }
