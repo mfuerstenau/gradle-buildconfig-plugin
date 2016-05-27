@@ -59,6 +59,12 @@ buildscript {
     maven {
       url 'https://plugins.gradle.org/m2/'
     }
+    // alternatvely one can use the bintray repository, note that the binary is
+    // built from the same tag but may have been compiled using differetn compile
+    // environment
+    // maven {
+    //   url 'http://dl.bintray.com/mfuerstenau/maven/'
+    // }
   }
   dependencies {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.4'
