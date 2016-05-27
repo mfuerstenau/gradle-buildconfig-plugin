@@ -43,13 +43,22 @@ jar {
 
 task copyBintrayTemplate (type: Copy) {
     from "${projectDir}/templates"
-    into "$buildDir"
+    into "${project.buildDir}"
     include 'bintray.json.template'
     rename { file -> 'bintray.json' }
-    expand (version: version, releasedate: new SimpleDateFormat("yyyy-MM-dd").format (new Date()))
+    expand (version: version, releasedate: releaseDate (), mavenRepositoryPath: mavenRepositoryPath ())
+}
+
+task copyPOMTemplate (type: Copy) {
+    from "${projectDir}/templates"
+    into "${buildDir}/libs"
+    include 'pom.xml.template'
+    rename { file -> "${project.name}-${project.version}.pom" }
+    expand (version: version)
 }
 
 assemble.dependsOn copyBintrayTemplate
+assemble.dependsOn copyPOMTemplate
 
 pluginBundle {
   // These settings are set for the whole plugin bundle
@@ -78,4 +87,14 @@ test {
         events "failed"
         exceptionFormat "full"
     }
+}
+
+def mavenRepositoryPath ()
+{
+   "gradle/plugin/de/fuerstenau/BuildConfigPlugin/${version}/"
+}
+
+def releaseDate ()
+{
+   new SimpleDateFormat("yyyy-MM-dd").format (new Date())
 }

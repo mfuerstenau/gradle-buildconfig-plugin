@@ -24,7 +24,7 @@
     "files":
             [
                 {
-                    "includePattern": "build/libs/(.*\\\\.jar)", "uploadPattern" : "\$1"
+                    "includePattern": "build/libs/(.*\\\\.(jar|pom))", "uploadPattern" : "${mavenRepositoryPath}\$1"
                 }
             ],
     "publish": false
