@@ -169,7 +169,7 @@ class BuildConfigPlugin implements Plugin<Project>
             }
             /* workaround for Eclipse, running eclipse task after will add this to classpath */
             def compiledClasses = compile.outputs.files
-            compiledClasses.builtBy compile.name
+            compiledClasses.builtBy compile
             /*
              * add dependency for sourceset compile configturation */
             /* previously, we'd add the files via dependency:
