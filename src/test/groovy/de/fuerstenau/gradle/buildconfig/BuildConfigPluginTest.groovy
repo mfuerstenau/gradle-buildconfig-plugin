@@ -38,10 +38,12 @@ import org.gradle.api.Project
 import org.gradle.api.ProjectEvaluationListener
 import org.gradle.api.internal.project.AbstractProject
 import org.gradle.api.internal.project.ProjectStateInternal
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.testfixtures.ProjectBuilder
 import static org.assertj.core.api.Assertions.assertThat
+import org.gradle.api.plugins.JavaPluginConvention
 /**
  *
  */
@@ -106,12 +108,23 @@ class BuildConfigPluginTest {
          o in FileCollection && (o as FileCollection).source == (cTask.inputs.inputFiles + cTask.inputs.sourceFiles).source
       }).isTrue ();
      
-        /* compile configuration depends on generated classes output dir, resolved */
-      assertThat (project.configurations.getByName ("compile").dependencies.any { Dependency dep ->
-         dep in FileCollectionDependency && (dep as FileCollectionDependency).resolve ().any { File f ->
-            f.path.endsWith ('\\gen\\buildconfig\\classes\\main') || f.path.endsWith ('/gen/buildconfig/classes/main')
-         }
+      println 'Hello'
+      
+      println project.convention.plugins.size ()
+      project.convention.plugins.each { k, v ->
+         println k
+      }
+      
+      SourceSet sourceSet = project.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (gTask.sourceSet)
+      
+      /* all outputs have to be in compile classpath */
+      assertThat (cTask.outputs.files.every {
+         sourceSet.compileClasspath.contains (it)
       }).isTrue ()
+      
+      /* first output of compile task is also in source set output (not the dependency-cache) */
+      assertThat (sourceSet.output.contains (cTask.outputs.files.first ())).isTrue ()
+
    }
       
    @After
