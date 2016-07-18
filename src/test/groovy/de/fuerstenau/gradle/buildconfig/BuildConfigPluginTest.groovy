@@ -108,13 +108,6 @@ class BuildConfigPluginTest {
          o in FileCollection && (o as FileCollection).source == (cTask.inputs.inputFiles + cTask.inputs.sourceFiles).source
       }).isTrue ();
      
-      println 'Hello'
-      
-      println project.convention.plugins.size ()
-      project.convention.plugins.each { k, v ->
-         println k
-      }
-      
       SourceSet sourceSet = project.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (gTask.sourceSet)
       
       /* all outputs have to be in compile classpath */
