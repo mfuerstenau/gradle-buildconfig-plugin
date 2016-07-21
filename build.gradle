@@ -25,10 +25,28 @@ configurations {
     compile.extendsFrom provided
 }
 
+
+task createClasspathManifest {
+    def outputDir = file("${buildDir}/${name}")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("${outputDir}/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join ("\n")
+    }
+}
+
 dependencies {
     provided gradleApi()
     testCompile group: 'junit', name: 'junit', version: '4.10'
     testCompile 'org.assertj:assertj-core:2.1.0'
+    testCompile ('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude module : 'groovy-all'
+    }
+    testCompile gradleTestKit()
+    testRuntime files(createClasspathManifest)
 }
 
 
@@ -61,25 +79,25 @@ assemble.dependsOn copyBintrayTemplate
 assemble.dependsOn copyPOMTemplate
 
 pluginBundle {
-  // These settings are set for the whole plugin bundle
-  website = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
-  vcsUrl = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
+    // These settings are set for the whole plugin bundle
+    website = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
+    vcsUrl = 'https://github.com/mfuerstenau/gradle-buildconfig-plugin'
 
-  plugins {
+    plugins {
 
-    // another plugin
-    buildConfigPlugin {
-      id = 'de.fuerstenau.buildconfig'
-      displayName = 'Build config plugin for Gradle Java and Groovy projects'
-      description = 'A build config is a generated class holding constants set by the build script. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.'
-      tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset', 'groovy', 'constants']
-      version = project.version
+        // another plugin
+        buildConfigPlugin {
+            id = 'de.fuerstenau.buildconfig'
+            displayName = 'Build config plugin for Gradle Java and Groovy projects'
+            description = 'A build config is a generated class holding constants set by the build script. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.'
+            tags = ['java', 'buildconfig', 'static', 'version', 'generated', 'sourceset', 'groovy', 'constants']
+            version = project.version
+        }
     }
-  }
 }
 
 task wrapper(type: Wrapper) {
-   gradleVersion = '2.14'
+    gradleVersion = '2.14.1'
 }
 
 test {
@@ -97,5 +115,5 @@ def mavenRepositoryPath ()
 
 def releaseDate ()
 {
-   new SimpleDateFormat("yyyy-MM-dd").format (new Date())
+    new SimpleDateFormat("yyyy-MM-dd").format (new Date())
 }
