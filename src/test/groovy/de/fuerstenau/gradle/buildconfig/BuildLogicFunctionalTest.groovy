@@ -27,63 +27,62 @@ import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
+import spock.lang.*
 import java.lang.reflect.Field
 
 class BuildLogicFunctionalTest extends Specification {
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
-    File buildFile
-    File settingsFile
-    File genClassesDir
-    File genSourcesDir
-    File libsDir
-    File srcFile
-    String packageName = 'org.sample'
-    String buildConfigName = 'MainConfig'
-    String testProjectName = 'testProject'
-    String testProjectVersion = '1.2-SNAPSHOT'
-    List<File> pluginClasspath
 
-    String sourceSetSourcesDir (String sourceSet)
-    {
-        new File (genSourcesDir, sourceSet).toString ().replace ('\\', '/')
-    }
+   @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+   
+   File buildFile
+   File settingsFile
+   File buildDir
+   
+   @Shared
+   List<File> pluginClasspath
 
-    String sourceSetClassesDir (String sourceSet)
-    {
-        new File (genClassesDir, sourceSet).toString ().replace ('\\', '/')
-    }
+   String sourceSetSourcesDir (String sourceSet)
+   {
+      new File (genSourcesDir, sourceSet).toString ().replace ('\\', '/')
+   }
+
+   String sourceSetClassesDir (String sourceSet)
+   {
+      new File (genClassesDir, sourceSet).toString ().replace ('\\', '/')
+   }
     
-    def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
-        settingsFile = testProjectDir.newFile('settings.gradle')
-        libsDir = new File (testProjectDir.root, 'build/libs')
-        genSourcesDir = new File (testProjectDir.root, BuildConfigPlugin.FD_SOURCE_OUTPUT)
-        genClassesDir = new File (testProjectDir.root, BuildConfigPlugin.FD_CLASS_OUTPUT)
+   def setupSpec ()
+   {
+      def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
+      if (pluginClasspathResource == null) {
+         throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
+      }
 
-        def pluginClasspathResource = getClass().classLoader.findResource("plugin-classpath.txt")
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
-        }
+      pluginClasspath = pluginClasspathResource.readLines().collect { new File(it) }
+      
+   }
+   
+   def setup() {
+      buildFile = testProjectDir.newFile('build.gradle')
+      settingsFile = testProjectDir.newFile('settings.gradle')
+      buildDir = new File (testProjectDir.root, 'build')
+   }
 
-        pluginClasspath = pluginClasspathResource.readLines().collect { new File(it) }
-    }
-
-    static String classPathDependencyStr (List<File> classpath)
-    {
-        return 'classpath files (' + classpath
-            .findAll ({ !(it.toString ().contains(".wrapper") || it.toString ().contains (".gradle")) })
-            .collect({ "'${it.toString ().replace ('\\', '/')}'"}).join (', ') + ')'
-    }
+   static String classPathDependencyStr (List<File> classpath)
+   {
+      return 'classpath files (' + classpath
+      .findAll ({ !(it.toString ().contains(".wrapper") || it.toString ().contains (".gradle")) })
+      .collect({ "'${it.toString ().replace ('\\', '/')}'"}).join (', ') + ')'
+   }
     
-    def 'test buildconfig simple manual wiring' () {
-        given: 'buildscript is prepared and project built'
-            /* setting the project name of the test project */
-            settingsFile << "rootProject.name = '${testProjectName}'"
-            /* */
-            def pluginClasspathAsFileCollcetion = 
+   def 'test buildconfig simple manual wiring' () {
+      setup: 'buildscript is prepared and project built'
+      /* setting the project name of the test project */
+      settingsFile << "rootProject.name = 'testProject'"
+      /* */
+      def pluginClasspathAsFileCollcetion = 
 
-            buildFile << """import de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask
+      buildFile << """import de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask
 
             buildscript {
                 dependencies {
@@ -95,17 +94,14 @@ class BuildLogicFunctionalTest extends Specification {
                 id 'java'
             }
 
-            version = '${testProjectVersion}'
-
-            sourceCompatibility = '1.7'
-            [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+            version = '1.2-SNAPSHOT'
 
             task generateBuildConfig (type: GenerateBuildConfigTask) {
                 appName = 'SuperTrooperStarshipApp'
                 version = version // same as project version
-                clsName = '${buildConfigName}'
-                packageName = '${packageName}'
-                outputDir = new File ('${sourceSetSourcesDir ('main')}')
+                clsName = 'MainConfig'
+                packageName = 'org.sample'
+                outputDir = new File (\"\${buildDir}/gen/buildconfig/src/main/\")
                 buildConfigField 'int', 'MY_INT', '42'
                 buildConfigField 'float', 'MY_FLOAT', '2.5345f'
                 buildConfigField 'double', 'MY_DOUBLE', '2.1423423'
@@ -117,7 +113,7 @@ class BuildLogicFunctionalTest extends Specification {
 
             task compileBuildConfig(type:JavaCompile, dependsOn: generateBuildConfig) {
                 classpath = files ()
-                destinationDir = new File ('${sourceSetClassesDir('main')}')
+                destinationDir = new File (\"\${buildDir}/gen/buildconfig/classes/main/\")
                 source = generateBuildConfig.outputDir
             }
 
@@ -129,91 +125,248 @@ class BuildLogicFunctionalTest extends Specification {
                 }
             }
             """
+      println ("--- build.gradle ---")
+      buildFile.readLines ().each { line ->
+         println line
+      }
         
-        when:
-            def result = GradleRunner.create()
-            .withPluginClasspath(pluginClasspath)
-            .withProjectDir(testProjectDir.root)
-            .withArguments('build')
-            .build ()
+      when:
+      def result = GradleRunner.create()
+      .withProjectDir(testProjectDir.root)
+      .withArguments('clean', 'build')
+      .build ()
             
-            println result.output
+      println result.output
             
-        then: 'buildconfig class exists'
-            buildConfigClassFileExists ('main')
-        then: 'all fields are in the class file'
-            checkFields (fieldsFromClassFile (new File (genClassesDir, 'main').toString (), 'org.sample.MainConfig'))
-        then: 'all fields are in the class file (in the jar file)'
-            checkFields (fieldsFromJar (new File (libsDir, "${testProjectName}-${testProjectVersion}.jar").toString (), 'org.sample.MainConfig'))
-    }
-    
-    def cleanup ()
-    {
-       triggerGC ()
-    }
-    
-    def checkFields (def fields) {
-        def expected = [
-            'VERSION/java.lang.String/1.2-SNAPSHOT',
-            'NAME/java.lang.String/SuperTrooperStarshipApp',
-            'MY_INT/int/42',
-            'MY_FLOAT/float/2.5345',
-            'MY_DOUBLE/double/2.1423423',
-            'MY_LONG/long/123',
-            'MY_STR/java.lang.String/my string',
-            'MY_BYTE/byte/-1',
-            'MY_BYTEARR/[B/[-1, 10, 32]'
-        ]
-        fields.intersect (expected).size () == expected.size ()
-    }
-    
-    def buildConfigClassFileExists (String sourceSet)
-    {
-        new File (sourceSetClassesDir (sourceSet), packageName.replace ('.', '/') + '/' + buildConfigName + '.class').exists ()
-    }
-    
-    List<String> getFields (Class<?> clazz)
-    {
-       clazz.declaredFields.collect {
-            "${it.name}/${it.type.name}/${it.get (null)}"
-        }
-    }
+      then: 'buildconfig class exists'
+         /* checking the existence of the generated source */
+         def buildConfigSource = new File (testProjectDir.root, 'build/gen/buildconfig/src/main/org/sample/MainConfig.java')
+         buildConfigSource.exists ()
+         /* checking the existence of the generated class */
+         def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MainConfig.class')
+         buildConfigClass.exists ()
+
+      then: 'jar exists'
+         def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.2-SNAPSHOT.jar')
+         jarFile.exists ()
+
+      then: 'all fields are in the class file'
+         with (fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'org.sample.MainConfig')) { fields->
+            fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
+            fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
+            fields.contains 'MY_INT/int/42'
+            fields.contains 'MY_FLOAT/float/2.5345'
+            fields.contains 'MY_DOUBLE/double/2.1423423'
+            fields.contains 'MY_LONG/long/123'
+            fields.contains 'MY_STR/java.lang.String/my string'
+            fields.contains 'MY_BYTE/byte/-1'
+            fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+      }
+
+      then: 'all fields are in the class file'
+         with (fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.2-SNAPSHOT.jar"), 'org.sample.MainConfig')) { fields->
+            fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
+            fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
+            fields.contains 'MY_INT/int/42'
+            fields.contains 'MY_FLOAT/float/2.5345'
+            fields.contains 'MY_DOUBLE/double/2.1423423'
+            fields.contains 'MY_LONG/long/123'
+            fields.contains 'MY_STR/java.lang.String/my string'
+            fields.contains 'MY_BYTE/byte/-1'
+            fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+         }
+   }
    
-    List<String> fieldsFromJar (String jarFile, String fullyQualifiedClass)
-    {
+   def 'test buildconfig simple closure' () {
+      setup: 'buildscript is prepared and project built'
+      /* setting the project name of the test project */
+      settingsFile << "rootProject.name = 'testProject'"
+      /* */
+      def pluginClasspathAsFileCollcetion = 
+
+      buildFile << """import de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask
+
+            plugins {
+                id 'java'
+                id 'de.fuerstenau.buildconfig'
+            }
+
+            buildConfig {
+            }
+            """
+      println ("--- build.gradle ---")
+      buildFile.readLines ().each { line ->
+         println line
+      }
+        
+      when:
+      def result = GradleRunner.create()
+      .withPluginClasspath(pluginClasspath)
+      .withProjectDir(testProjectDir.root)
+      .withArguments('clean', 'build')
+      .build ()
+            
+      println result.output
+            
+      then: 'buildconfig class exists'
+         /* checking the existence of the generated source */
+         def buildConfigSource = new File (testProjectDir.root, 'build/gen/buildconfig/src/main/de/fuerstenau/buildconfig/BuildConfig.java')
+         buildConfigSource.exists ()
+         /* checking the existence of the generated class */
+         def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/de/fuerstenau/buildconfig/BuildConfig.class')
+         buildConfigClass.exists ()
+
+      then: 'jar exists'
+         def jarFile = new File (testProjectDir.root, 'build/libs/testProject.jar')
+         jarFile.exists ()
+
+      and: 'all fields are in the class file'
+         with (fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'de.fuerstenau.buildconfig.BuildConfig')) { fields->
+            fields.contains 'VERSION/java.lang.String/unspecified'
+            fields.contains 'NAME/java.lang.String/testProject'
+      }
+
+      then: 'all fields are in the class file'
+         with (fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject.jar"), 'de.fuerstenau.buildconfig.BuildConfig')) { fields->
+            fields.contains 'VERSION/java.lang.String/unspecified'
+            fields.contains 'NAME/java.lang.String/testProject'
+         }
+   }
+    
+   def 'test buildconfig more complex closure' () {
+      setup: 'buildscript is prepared and project built'
+      /* setting the project name of the test project */
+      settingsFile << "rootProject.name = 'testProject'"
+      /* */
+      def pluginClasspathAsFileCollcetion = 
+
+      buildFile << """import de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask
+
+            plugins {
+                id 'java'
+                id 'de.fuerstenau.buildconfig'
+            }
+
+            version = '1.2-SNAPSHOT'
+
+            buildConfig {
+                appName = 'SuperTrooperStarshipApp'
+                version = version
+                clsName = 'MainConfig'
+                packageName = 'org.sample'
+                buildConfigField 'int', 'MY_INT', '42'
+                buildConfigField 'float', 'MY_FLOAT', '2.5345f'
+                buildConfigField 'double', 'MY_DOUBLE', '2.1423423'
+                buildConfigField 'long', 'MY_LONG', '123L'
+                buildConfigField 'String', 'MY_STR', 'my string'
+                buildConfigField 'byte', 'MY_BYTE', '(byte) 0xff'
+                buildConfigField 'byte[]', 'MY_BYTEARR', '{ (byte) 0xff, (byte) 0xa, (byte) 0x20 }'
+            }
+            """
+      println ("--- build.gradle ---")
+      buildFile.readLines ().each { line ->
+         println line
+      }
+        
+      when:
+      def result = GradleRunner.create()
+      .withPluginClasspath(pluginClasspath)
+      .withProjectDir(testProjectDir.root)
+      .withArguments('clean', 'build')
+      .build ()
+            
+      println result.output
+            
+      then: 'buildconfig class exists'
+         /* checking the existence of the generated source */
+         def buildConfigSource = new File (testProjectDir.root, 'build/gen/buildconfig/src/main/org/sample/MainConfig.java')
+         buildConfigSource.exists ()
+         /* checking the existence of the generated class */
+         def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MainConfig.class')
+         buildConfigClass.exists ()
+
+      then: 'jar exists'
+         def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.2-SNAPSHOT.jar')
+         jarFile.exists ()
+
+      then: 'all fields are in the class file'
+         with (fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'org.sample.MainConfig')) { fields->
+            fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
+            fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
+            fields.contains 'MY_INT/int/42'
+            fields.contains 'MY_FLOAT/float/2.5345'
+            fields.contains 'MY_DOUBLE/double/2.1423423'
+            fields.contains 'MY_LONG/long/123'
+            fields.contains 'MY_STR/java.lang.String/my string'
+            fields.contains 'MY_BYTE/byte/-1'
+            fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+      }
+
+      then: 'all fields are in the class file'
+         with (fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.2-SNAPSHOT.jar"), 'org.sample.MainConfig')) { fields->
+            fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
+            fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
+            fields.contains 'MY_INT/int/42'
+            fields.contains 'MY_FLOAT/float/2.5345'
+            fields.contains 'MY_DOUBLE/double/2.1423423'
+            fields.contains 'MY_LONG/long/123'
+            fields.contains 'MY_STR/java.lang.String/my string'
+            fields.contains 'MY_BYTE/byte/-1'
+            fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+         }
+   }
+    
+   def cleanup ()
+   {
+      triggerGC ()
+   }
+    
+   def buildConfigClassFileExists (String sourceSet)
+   {
+      new File (sourceSetClassesDir (sourceSet), packageName.replace ('.', '/') + '/' + buildConfigName + '.class').exists ()
+   }
+    
+   List<String> getFields (Class<?> clazz)
+   {
+      clazz.declaredFields.collect {
+            "${it.name}/${it.type.name}/${it.get (null)}".toString ()
+      }
+   }
+   
+   List<String> fieldsFromJar (File jarFile, String fullyQualifiedClass)
+   {
       URL url = urlForJar (jarFile)  
       Class<?> clazz = loadClass (url, fullyQualifiedClass)
       getFields (clazz)
-    }
+   }
     
-    List<String> fieldsFromClassFile (String classesDir, String fullyQualifiedClass)
-    {
+   List<String> fieldsFromClass (File classesDir, String fullyQualifiedClass)
+   {
       URL url = urlForClasses (classesDir)  
       Class<?> clazz = loadClass (url, fullyQualifiedClass)
       getFields (clazz)
-    }
+   }
     
-    URL urlForJar (String jarFile)
-    {
-        new URL("jar", "", new File(jarFile).toURL ().toString () + "!/")
-    }
+   URL urlForJar (File jarFile)
+   {
+      new URL("jar", "", jarFile.toURL ().toString () + "!/")
+   }
 
-   URL urlForClasses (String classesDir)
-    {
-        new File(classesDir).toURL ()
-    }
+   URL urlForClasses (File classesDir)
+   {
+      classesDir.toURL ()
+   }
     
-    Class<?> loadClass (URL url, String fullyQualifiedClass)
-    {
-        ClassLoader cl = new URLClassLoader(url);
-        cl.loadClass(fullyQualifiedClass);
-    }
+   Class<?> loadClass (URL url, String fullyQualifiedClass)
+   {
+      ClassLoader cl = new URLClassLoader(url);
+      cl.loadClass(fullyQualifiedClass);
+   }
     
-    private static void triggerGC() throws InterruptedException {
-        System.out.println("\n-- Starting GC");
-        System.gc();
-        Thread.sleep(100);
-        System.out.println("-- End of GC\n");
-    }   
+   void triggerGC() throws InterruptedException {
+      System.out.println("\n-- Starting GC");
+      System.gc();
+      Thread.sleep(100);
+      System.out.println("-- End of GC\n");
+   }   
 }
-

@@ -25,7 +25,6 @@ configurations {
     compile.extendsFrom provided
 }
 
-
 task createClasspathManifest {
     def outputDir = file("${buildDir}/${name}")
 
