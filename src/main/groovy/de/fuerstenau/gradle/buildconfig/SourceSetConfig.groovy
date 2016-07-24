@@ -38,6 +38,7 @@ public class SourceSetConfig implements Named
 
    String version
    String clsName
+   String charset
    String appName
    String packageName
 
@@ -91,6 +92,7 @@ public class SourceSetConfig implements Named
    {
       SourceSetConfig result = new SourceSetConfig (other.name)
       result.appName = other.appName ?: this.appName
+      result.charset = other.charset ?: this.charset
       result.packageName = other.packageName ?: this.packageName
       result.version = other.version ?: this.version
       result.clsName = other.clsName ?: this.clsName

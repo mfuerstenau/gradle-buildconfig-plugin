@@ -50,6 +50,8 @@ buildConfig {
     clsName = 'BuildConfig'      // sets the name of the BuildConfig class
     packageName = project.group  // sets the package of the BuildConfig class,
                                  // 'de.fuerstenau.buildconfig' if project.group is not set
+    charset = 'UTF-8'            // sets charset of the generated class,
+                                 // 'UTF-8' if not set otherwise
 }
 ```
 

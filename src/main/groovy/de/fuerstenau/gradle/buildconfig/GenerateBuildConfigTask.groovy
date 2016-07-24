@@ -48,135 +48,224 @@ import org.slf4j.LoggerFactory
  */
 class GenerateBuildConfigTask extends DefaultTask
 {
+   private static final Logger LOG = LoggerFactory.getLogger (
+      BuildConfigPlugin.canonicalName)
 
-    private static final Logger LOG = LoggerFactory.getLogger (
-        BuildConfigPlugin.canonicalName)
+   /**
+    * Default charset for generated class: UTF-8.
+    */
+   public static final String DEFAULT_CHARSET = 'UTF-8'
+   /**
+    * Deletes a directory and recreates it.
+    *
+    * @param outputDir Directory
+    * @throws IOException thrown if I/O error occurs
+    */
+   private static void emptyDir (final File outputDir) throws IOException
+   {
+      outputDir.toPath ().deleteDir ()
+      outputDir.mkdirs ()
+   }
+
+   @Input
+   String sourceSet
+
+   @Input
+   String charset
+
+   /**
+    * Package name for the generated class.
+    */ 
+   @Input
+   String packageName
+
+   /**
+    * Class name of generated class.
+    */ 
+   @Input
+   String clsName
+
+   /**
+    * Value of {@code VERSION} field of generated class.
+    */ 
+   @Input
+   String version
+
+   /**
+    * Value of {@code Name} field of generated class.
+    */ 
+   @Input
+   String appName
 
     /**
-     * Deletes a directory and recreates it.
-     *
-     * @param outputDir Directory
-     * @throws IOException thrown if I/O error occurs
+     * Target directory of generated class.
      */
-    private static void emptyDir (final File outputDir) throws IOException
-    {
-        outputDir.toPath ().deleteDir ()
-        outputDir.mkdirs ()
-    }
+   @OutputDirectory
+   File outputDir
 
-    @Input
-    String sourceSet
+   /**
+    * Fields of generated class.
+    */
+   @Input
+   final Map<String, ClassField> classFields = new LinkedHashMap<> ()
 
-    @Input
-    String packageName
-
-    @Input
-    String clsName
-
-    @Input
-    String version
-
-    @Input
-    String appName
-
-    @OutputDirectory
-    File outputDir
-
-    @Input
-    final Map<String, ClassField> classFields = new LinkedHashMap<> ()
-
-    GenerateBuildConfigTask ()
-    {
-        /* configure defaults */
-        version = project.version
-        packageName = project.group ?: DEFAULT_PACKAGENAME
-        clsName = DEFAULT_CLASS_NAME
-        appName = project.name
-        sourceSet = DEFAULT_SOURCESET
+   GenerateBuildConfigTask ()
+   {
+      /* configure defaults */
+      version = project.version
+      packageName = project.group ?: DEFAULT_PACKAGENAME
+      clsName = DEFAULT_CLASS_NAME
+      appName = project.name
+      sourceSet = DEFAULT_SOURCESET
+      charset = DEFAULT_CHARSET
       
-        LOG.debug "{}: GenerateBuildConfigTask created", name
-    }
+      LOG.debug "{}: GenerateBuildConfigTask created", name
+   }
 
-    void buildConfigField (String type, String name, String value)
-    {
-        addClassField (type, name, value)
-    }
+   /**
+    * Adds a custom field to the generated class.
+    * <p>
+    * Types must be Java primitive types or Objects with fully qualified names
+    * if not in the Java standard library.
+    * <p>
+    * {@code String} or {@code char} values have to be surrounded by quotes.
+    * <p>
+    * Example:
+    * <code>{@code buildConfigField ('String', 'MY_STR', '"my value"')
+    * }</code>
+    * 
+    * @param type Type of the field
+    * @param name Name of the field
+    * @param value Value of the field
+    * 
+    * @see #addClassField(String, String, String)
+    */
+   void buildConfigField (String type, String name, String value)
+   {
+      addClassField (type, name, value)
+   }
 
-    String getClassFieldValue (String name)
-    {
-        ClassField cf = classFields.get (name)
-        if (cf != null)
-        return cf.getValue ()
-        else
-        return null
-    }
+   /**
+    * Gets value for class field.
+    * 
+    * @param name Name of class field
+    * 
+    * @returns Value or <i>null</i> if unknown class field
+    */
+   String getClassFieldValue (String name)
+   {
+      ClassField cf = classFields.get (name)
+      if (cf != null)
+      return cf.value
+      else
+      return null
+   }
 
-    void addClassField (String type, String name, String value)
-    {
-        addClassField (classFields, new ClassFieldImpl (type, name, value))
-    }
+   /**
+    * Adds a custom field to the generated class.
+    * <p>
+    * Types must be Java primitive types or Objects with fully qualified names
+    * if not in the Java standard library.
+    * <p>
+    * {@code String} or {@code char} values have to be surrounded by quotes.
+    * <p>
+    * Example:
+    * <code>{@code addClassField ('String', 'MY_STR', '"my value"')
+    * }</code>
+    * 
+    * @param type Type of the field
+    * @param name Name of the field
+    * @param value Value of the field
+    * 
+    * @see #buildConfigField(String, String, String)
+    */
+   void addClassField (String type, String name, String value)
+   {
+      addClassField (classFields, new ClassFieldImpl (type, name, value))
+   }
 
-    void addClassField (ClassField cf)
-    {
-        addClassField (classFields, cf)
-    }
+   /**
+    * Adds a class field to the generated class.
+    * 
+    * @param cf class field
+    * 
+    * @see #addClassField(String, String, String)
+    */   
+   void addClassField (ClassField cf)
+   {
+      addClassField (classFields, cf)
+   }
 
-    void addClassField (Map<String, ClassField> dest, ClassField cf)
-    {
-        ClassField alreadyPresent = dest.get (cf.name)
+   /**
+    * Adds a class field to destination map.
+    * 
+    * @param dest destination map
+    * @param cf class field
+    */   
+   void addClassField (Map<String, ClassField> dest, ClassField cf)
+   {
+      ClassField alreadyPresent = dest.get (cf.name)
 
-        if (alreadyPresent != null)
-        {
-            LOG.debug  "{}: buildConfigField <{}/{}/{}> exists, replacing with <{}/{}/{}>",
-            name,
-            alreadyPresent.type,
-            alreadyPresent.name,
-            alreadyPresent.value,
-            cf.type,
-            cf.name,
-            cf.value
-        }
-        dest.put (cf.name, cf)
-    }
+      if (alreadyPresent != null)
+      {
+         LOG.debug  "{}: buildConfigField <{}/{}/{}> exists, replacing with <{}/{}/{}>",
+         name,
+         alreadyPresent.type,
+         alreadyPresent.name,
+         alreadyPresent.value,
+         cf.type,
+         cf.name,
+         cf.value
+      }
+      dest.put (cf.name, cf)
+   }
 
-    private Map<String, ClassField> mergeClassFields ()
-    {
-        Map<String, ClassField> merged = new LinkedHashMap<> ()
-        addClassField (merged, new ClassFieldImpl ("String", DEFAULT_VERSION_FIELDNAME, version))
-        addClassField (merged, new ClassFieldImpl ("String", DEFAULT_NAME_FIELDNAME, appName))
-        classFields.values ().each { cf ->
-            addClassField (merged, cf)
-        }
-        return merged
-    }
+   /**
+    * Merges default class fields with classfields from input.
+    * 
+    * @return merged class fields
+    */
+   private Map<String, ClassField> mergeClassFields ()
+   {
+      Map<String, ClassField> merged = new LinkedHashMap<> ()
+      addClassField (merged, new ClassFieldImpl ("String", DEFAULT_VERSION_FIELDNAME, version))
+      addClassField (merged, new ClassFieldImpl ("String", DEFAULT_NAME_FIELDNAME, appName))
+      classFields.values ().each { cf ->
+         addClassField (merged, cf)
+      }
+      return merged
+   }
 
-    private Path getOutputFile ()
-    {
-        getOutputDirPath ().resolve (clsName + ".java")
-    }
+   /**
+    * Returns full path of output file.
+    */
+   private Path getOutputFile ()
+   {
+      getOutputDirPath ().resolve (clsName + ".java")
+   }
 
-    @TaskAction
-    void generateBuildConfig () throws IOException
-    {
-        LOG.debug "{}: GenerateBuildConfigTask executed.", name
-        /* buildConfig sourece file */
-        Path outputFile = outputDir.toPath ()
-            .resolve (packageName.replaceAll ('\\.', '/'))
-            .resolve (clsName + ".java")
+   @TaskAction
+   void generateBuildConfig () throws IOException
+   {
+      LOG.debug "{}: GenerateBuildConfigTask executed.", name
+      /* buildConfig sourece file */
+      Path outputFile = outputDir.toPath ()
+      .resolve (packageName.replaceAll ('\\.', '/'))
+      .resolve (clsName + ".java")
 
-        Map<String, ClassField> mergedClassFields = mergeClassFields ()
+      Map<String, ClassField> mergedClassFields = mergeClassFields ()
         
-        /*clear the output dir */
-        emptyDir (outputFile.parent.toFile ())
+      /*clear the output dir */
+      emptyDir (outputFile.parent.toFile ())
 
-        new ClassWriter (
-            Files.newBufferedWriter (outputFile, Charset.forName ("UTF-8"),
-                StandardOpenOption.CREATE)).withCloseable { w ->
-            w.writePackage (packageName).writeClass (clsName)
+      new ClassWriter (
+         Files.newBufferedWriter (outputFile, Charset.forName (charset),
+            StandardOpenOption.CREATE)).withCloseable { w ->
+         w.writePackage (packageName).writeClass (clsName)
 
-            mergedClassFields.values ().each { cf ->
-                w.writeClassField cf
+         mergedClassFields.values ().each { cf ->
+            w.writeClassField cf
             }
-        }
-    }
-}
+         }
+      }
+      }
