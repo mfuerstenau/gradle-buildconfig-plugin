@@ -102,7 +102,7 @@ class BuildLogicFunctionalTest extends Specification {
                 source = generateBuildConfig.outputDir
             }
 
-            compileJava.dependsOn compileBuildConfig
+            //compileJava.dependsOn compileBuildConfig
             sourceSets {
                 main {
                     compileClasspath += compileBuildConfig.outputs.files
