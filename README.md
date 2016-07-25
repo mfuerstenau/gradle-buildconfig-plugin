@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin)
 [![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
