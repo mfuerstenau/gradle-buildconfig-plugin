@@ -62,7 +62,17 @@ class BuildConfigPlugin implements Plugin<Project>
 
    private Project p
     
-   private Configuration getCompileConfiguration (SourceSetConfig cfg)
+   /**
+    * Get the compile-{@link org.gradle.api.artifacts.Configuration }
+    * corresponding to the name of given {@link BuildConfigSourceSet}.
+    * 
+    * @param cfg BuildConfigSourceSet
+    * @return corresponding <i>compile</i>-Configuration
+    * 
+    * @exception UnknownConfigurationException is thrown if there is no
+    * corresponding <i>compile</i>-{@link org.gradle.api.artifacts.Configuration }
+    */
+   private Configuration getCompileConfiguration (BuildConfigSourceSet cfg)
    {
       String configurationName = MAIN_SOURCESET.equals (cfg.name) ?\
             "compile" : "${cfg.name}Compile"
@@ -77,7 +87,17 @@ class BuildConfigPlugin implements Plugin<Project>
       }
    }
 
-   private SourceSet getSourceSet (SourceSetConfig cfg)
+   /**
+    * Get the corresponding {@link org.gradle.api.tasks.SourceSet} to the
+    * {@link BuildConfigSourceSet}.
+    * 
+    * @param cfg BuildConfigSourceSet
+    * @return SourceSet
+    * 
+    * @exception UnknownDomainObjectException is thrown when there is no
+    * corresponding {@link org.gradle.api.tasks.SourceSet}
+    */
+   private SourceSet getSourceSet (BuildConfigSourceSet cfg)
    {
       final SourceSet sourceSet
       try
@@ -100,7 +120,7 @@ class BuildConfigPlugin implements Plugin<Project>
    }
 
    
-   private GenerateBuildConfigTask createGenerateTask (Project p , SourceSetConfig cfg)
+   private GenerateBuildConfigTask createGenerateTask (Project p , BuildConfigSourceSet cfg)
    {
       final String generateTaskName = getTaskName ("generate", cfg.name, "BuildConfig")
       
@@ -112,14 +132,14 @@ class BuildConfigPlugin implements Plugin<Project>
          version = cfg.version ?: p.version
          if (cfg.charset != null)
             charset = cfg.charset
-         cfg.buildConfigFields.values().each { ClassField cf ->
+         cfg.classFields.values ().each { ClassField cf ->
             addClassField cf
          }
       }
       return generate
    }
    
-   private JavaCompile createCompileTask (Project p , SourceSetConfig cfg, GenerateBuildConfigTask generate)
+   private JavaCompile createCompileTask (Project p , BuildConfigSourceSet cfg, GenerateBuildConfigTask generate)
    {
       final String compileTaskName = getTaskName ("compile", cfg.name, "BuildConfig")
       
@@ -143,7 +163,7 @@ class BuildConfigPlugin implements Plugin<Project>
 
       /* evaluate the configuration closure */
       p.afterEvaluate {
-         getSourceSetConfigs ().each { SourceSetConfig cfg ->
+         getBuildConfigSourceSets ().each { BuildConfigSourceSet cfg ->
             SourceSet sourceSet = getSourceSet (cfg)
             final Configuration compileCfg = getCompileConfiguration (cfg)
 
@@ -198,21 +218,21 @@ class BuildConfigPlugin implements Plugin<Project>
       }
    }
 
-   private List<SourceSetConfig> getSourceSetConfigs ()
+   private List<BuildConfigSourceSet> getBuildConfigSourceSets ()
    {
       BuildConfigExtension ext = p.extensions.getByType (BuildConfigExtension)
         
-      List<SourceSetConfig>  res = new ArrayList<> ()
+      List<BuildConfigSourceSet>  res = new ArrayList<> ()
         
       if (ext.sourceSets.size () > 0)
       {
-         ext.sourceSets.each { SourceSetConfig cfg ->
+         ext.sourceSets.each { BuildConfigSourceSet cfg ->
             res.add (ext + cfg)
          }
       }
       else
       {
-         res.add(ext + new SourceSetConfig ("main"))
+         res.add(ext + new BuildConfigSourceSet ("main"))
       }
       return res
    }
