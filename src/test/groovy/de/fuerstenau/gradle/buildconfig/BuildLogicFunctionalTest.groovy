@@ -117,9 +117,10 @@ class BuildLogicFunctionalTest extends Specification {
         
       when:
       def result = GradleRunner.create()
-      .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
-      .build ()
+              .withGradleVersion(gradleVersion)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
             
       println result.output
             
@@ -131,11 +132,11 @@ class BuildLogicFunctionalTest extends Specification {
          def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MainConfig.class')
          buildConfigClass.exists ()
 
-      then: 'jar exists'
+      and: 'jar exists'
          def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.2-SNAPSHOT.jar')
          jarFile.exists ()
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'org.sample.MainConfig')) { fields->
             fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
             fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
@@ -148,7 +149,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
       }
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.2-SNAPSHOT.jar"), 'org.sample.MainConfig')) { fields->
             fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
             fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
@@ -160,6 +161,8 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
          }
+      where:
+         gradleVersion << ['2.9', '2.14']
    }
    
    def 'buildconfig empty closure' () {
@@ -186,10 +189,11 @@ class BuildLogicFunctionalTest extends Specification {
         
       when: 'running tasks [clean build]'
       def result = GradleRunner.create()
-      .withPluginClasspath(pluginClasspath)
-      .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
-      .build ()
+              .withGradleVersion(gradleVersion)
+              .withPluginClasspath(pluginClasspath)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
             
       println result.output
             
@@ -217,6 +221,8 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'VERSION/java.lang.String/unspecified'
             fields.contains 'NAME/java.lang.String/testProject'
          }
+      where:
+         gradleVersion << ['2.9', '2.14']
    }
     
    def 'buildconfig empty closure with some properties set' () {
@@ -248,10 +254,11 @@ class BuildLogicFunctionalTest extends Specification {
         
       when:
       def result = GradleRunner.create()
-      .withPluginClasspath(pluginClasspath)
-      .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
-      .build ()
+              .withGradleVersion(gradleVersion)
+              .withPluginClasspath(pluginClasspath)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
             
       println result.output
             
@@ -263,7 +270,7 @@ class BuildLogicFunctionalTest extends Specification {
          def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MyConfig.class')
          buildConfigClass.exists ()
 
-      then: 'jar exists'
+      and: 'jar exists'
          def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.3.3.jar')
          jarFile.exists ()
 
@@ -273,11 +280,13 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'NAME/java.lang.String/testProject'
       }
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.3.3.jar"), 'org.sample.MyConfig')) { fields->
             fields.contains 'VERSION/java.lang.String/1.3.3'
             fields.contains 'NAME/java.lang.String/testProject'
          }
+      where:
+         gradleVersion << ['2.9', '2.14']
    }
     
    def 'buildconfig empty closure with some properties set and two sourcesets' () {
@@ -323,10 +332,11 @@ class BuildLogicFunctionalTest extends Specification {
         
       when:
       def result = GradleRunner.create()
-      .withPluginClasspath(pluginClasspath)
-      .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
-      .build ()
+              .withGradleVersion(gradleVersion)
+              .withPluginClasspath(pluginClasspath)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
             
       println result.output
             
@@ -344,7 +354,7 @@ class BuildLogicFunctionalTest extends Specification {
          def buildConfigClassMain = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/BuildConfig.class')
          !buildConfigClassMain.exists ()
 
-      then: 'jar exists'
+      and: 'jar exists'
          def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.3.3.jar')
          jarFile.exists ()
 
@@ -354,11 +364,13 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'NAME/java.lang.String/testProject'
       }
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-other-1.3.3.jar"), 'org.sample.BuildConfig')) { fields->
             fields.contains 'VERSION/java.lang.String/1.3.3'
             fields.contains 'NAME/java.lang.String/testProject'
          }
+      where:
+         gradleVersion << ['2.9', '2.14']
    }
     
    def 'buildconfig more complex closure' () {
@@ -398,10 +410,11 @@ class BuildLogicFunctionalTest extends Specification {
         
       when:
       def result = GradleRunner.create()
-      .withPluginClasspath(pluginClasspath)
-      .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
-      .build ()
+              .withGradleVersion(gradleVersion)
+              .withPluginClasspath(pluginClasspath)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
             
       println result.output
             
@@ -413,11 +426,11 @@ class BuildLogicFunctionalTest extends Specification {
          def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MainConfig.class')
          buildConfigClass.exists ()
 
-      then: 'jar exists'
+      and: 'jar exists'
          def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.2-SNAPSHOT.jar')
          jarFile.exists ()
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'org.sample.MainConfig')) { fields->
             fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
             fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
@@ -430,7 +443,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
       }
 
-      then: 'all fields are in the class file'
+      and: 'all fields are in the class file'
          with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.2-SNAPSHOT.jar"), 'org.sample.MainConfig')) { fields->
             fields.contains 'NAME/java.lang.String/SuperTrooperStarshipApp'
             fields.contains 'VERSION/java.lang.String/1.2-SNAPSHOT'
@@ -442,6 +455,8 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
          }
+      where:
+         gradleVersion << ['2.9', '2.14']
    }
     
    def cleanup ()
