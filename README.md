@@ -23,7 +23,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
   }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
@@ -150,7 +150,7 @@ repositories {
     }
 }
 dependencies {
-    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
 }
 plugins {
     id 'java'
@@ -199,7 +199,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
   }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
