@@ -142,7 +142,7 @@ class GenerateBuildConfigTask extends DefaultTask
     */
    void buildConfigField (String type, String name, String value)
    {
-      addClassField (type, name, value)
+      addClassField (classFields, new ClassFieldImpl (type, name, value))
    }
 
    /**
@@ -159,29 +159,6 @@ class GenerateBuildConfigTask extends DefaultTask
       return cf.value
       else
       return null
-   }
-
-   /**
-    * Adds a custom field to the generated class.
-    * <p>
-    * Types must be Java primitive types or Objects with fully qualified names
-    * if not in the Java standard library.
-    * <p>
-    * {@code String} or {@code char} values have to be surrounded by quotes.
-    * <p>
-    * Example:
-    * <code>{@code addClassField ('String', 'MY_STR', '"my value"')
-    * }</code>
-    * 
-    * @param type Type of the field
-    * @param name Name of the field
-    * @param value Value of the field
-    * 
-    * @see #buildConfigField(String, String, String)
-    */
-   void addClassField (String type, String name, String value)
-   {
-      addClassField (classFields, new ClassFieldImpl (type, name, value))
    }
 
    /**

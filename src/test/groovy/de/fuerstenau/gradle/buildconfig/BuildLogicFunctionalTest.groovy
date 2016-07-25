@@ -310,8 +310,13 @@ class BuildLogicFunctionalTest extends Specification {
             group = 'org.sample'
 
             buildConfig {
+               buildConfigField 'String', 'INHERITED_FIELD', 'inherited'
+               buildConfigField 'String', 'INHERITED_OVERRIDDEN_FIELD', 'please override'
                sourceSets {
-                  other
+                  other {
+                     buildConfigField 'String', 'INHERITED_OVERRIDDEN_FIELD', 'actually overriden'
+                     buildConfigField 'String', 'ONLY_OTHER_FIELD', 'only other'
+                  }
                }
             }
 
@@ -325,7 +330,8 @@ class BuildLogicFunctionalTest extends Specification {
       def result = GradleRunner.create()
       .withPluginClasspath(pluginClasspath)
       .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
+      .withArguments('clean', 'build', '--stacktrace')
+      .withDebug (true)
       .build ()
             
       println result.output
@@ -352,12 +358,18 @@ class BuildLogicFunctionalTest extends Specification {
          with (TestUtil.fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/other"), 'org.sample.BuildConfig')) { fields->
             fields.contains 'VERSION/java.lang.String/1.3.3'
             fields.contains 'NAME/java.lang.String/testProject'
+            fields.contains 'INHERITED_FIELD/java.lang.String/inherited'
+            fields.contains 'INHERITED_OVERRIDDEN_FIELD/java.lang.String/actually overriden'
+            fields.contains 'ONLY_OTHER_FIELD/java.lang.String/only other'
       }
 
       then: 'all fields are in the class file'
          with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-other-1.3.3.jar"), 'org.sample.BuildConfig')) { fields->
             fields.contains 'VERSION/java.lang.String/1.3.3'
             fields.contains 'NAME/java.lang.String/testProject'
+            fields.contains 'INHERITED_FIELD/java.lang.String/inherited'
+            fields.contains 'INHERITED_OVERRIDDEN_FIELD/java.lang.String/actually overriden'
+            fields.contains 'ONLY_OTHER_FIELD/java.lang.String/only other'
          }
    }
     
@@ -400,7 +412,7 @@ class BuildLogicFunctionalTest extends Specification {
       def result = GradleRunner.create()
       .withPluginClasspath(pluginClasspath)
       .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build')
+      .withArguments('clean', 'build', '--stacktrace')
       .build ()
             
       println result.output
