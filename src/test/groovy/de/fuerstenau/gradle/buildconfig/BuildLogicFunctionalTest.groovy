@@ -330,8 +330,7 @@ class BuildLogicFunctionalTest extends Specification {
       def result = GradleRunner.create()
       .withPluginClasspath(pluginClasspath)
       .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build', '--stacktrace')
-      .withDebug (true)
+      .withArguments('clean', 'build')
       .build ()
             
       println result.output
@@ -412,7 +411,7 @@ class BuildLogicFunctionalTest extends Specification {
       def result = GradleRunner.create()
       .withPluginClasspath(pluginClasspath)
       .withProjectDir(testProjectDir.root)
-      .withArguments('clean', 'build', '--stacktrace')
+      .withArguments('clean', 'build')
       .build ()
             
       println result.output
