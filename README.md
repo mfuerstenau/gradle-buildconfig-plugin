@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/blob/1.1.5-SNAPSHOT/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/LICENSE)
 [![Build Status](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin)
 [![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
@@ -10,7 +10,7 @@ How to add as buildscript dependency .
 ### Easy (Gradle 2.1+)
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.5'
+  id 'de.fuerstenau.buildconfig' version '1.1.6'
 }
 ```
 ### Classic (Gradle prior to 2.1)
@@ -23,7 +23,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.5'
+    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
   }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
@@ -32,7 +32,7 @@ You can download the ```.jar```-file from the button at the top and use as file 
 ```gradle
 buildscript {
   dependencies {
-    classpath files ("${projectDir}/lib/BuildConfig-1.1.5-SNAPSHOT.jar") // insert the path to .jar-file
+    classpath files ("${projectDir}/lib/BuildConfig-1.1.6-SNAPSHOT.jar") // insert the path to .jar-file
   }
 apply plugin: 'de.fuerstenau.buildconfig'
 ```
@@ -150,7 +150,7 @@ repositories {
     }
 }
 dependencies {
-    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.5'
+    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
 }
 plugins {
     id 'java'
