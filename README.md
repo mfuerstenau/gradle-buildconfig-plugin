@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg) ](https://github.com/mfuerstenau/gradle-buildconfig-plugin/blob/1.1.6-SNAPSHOT/LICENSE)
 [![Build Status](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin.svg?branch=master)](https://travis-ci.org/mfuerstenau/gradle-buildconfig-plugin)
 [![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
@@ -188,3 +188,20 @@ sourceSets {
     }
 }
 ```
+
+## Alternative Maven repository
+Should there be a problem with the repository at ```plugins.gradle.org```, this can be used as alternative:
+```gradle
+buildscript {
+  repositories {
+    maven {
+      url 'https://dl.bintray.com/mfuerstenau/maven'
+    }
+  }
+  dependencies {
+    classpath group: 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+  }
+apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
+```
+## Gradle plugin portal
+The plugin is listed at [https://plugins.gradle.org/plugin/de.fuerstenau.buildconfig](https://plugins.gradle.org/plugin/de.fuerstenau.buildconfig).
