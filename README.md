@@ -25,6 +25,7 @@ buildscript {
   dependencies {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
   }
+}
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
 ### Local
@@ -34,6 +35,7 @@ buildscript {
   dependencies {
     classpath files ("${projectDir}/lib/BuildConfig-1.1.6-SNAPSHOT.jar") // insert the path to .jar-file
   }
+}
 apply plugin: 'de.fuerstenau.buildconfig'
 ```
 By default a ```BuildConfig``` class ```BuildConfig``` in a package equal to the defined ```group``` or ```de.fuerstenau.buildconfig``` if no ```group``` is defined. Also the ```BuildConfig``` is by default generated for the _main_ ```SourceSet```.
@@ -155,13 +157,14 @@ buildConfig {
 This is an example of manually creating the tasks and wiring them to generate and compile a build config for ```main```-```SourceSet```. This is very similar to the internal working of the plugin. We do not want to apply the plugin because that would trigger the automatic creation of tasks.
 ```gradle
 buildscript {
-repositories {
-    maven {
-    url 'https://plugins.gradle.org/m2/'
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
     }
-}
-dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    dependencies {
+        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    }
 }
 plugins {
     id 'java'
@@ -212,6 +215,7 @@ buildscript {
   dependencies {
     classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
   }
+}
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
 ## Gradle plugin portal
