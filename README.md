@@ -10,7 +10,7 @@ How to add as buildscript dependency .
 ### Easy (Gradle 2.1+)
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.6'
+  id 'de.fuerstenau.buildconfig' version '1.1.7-SNAPSHOT'
 }
 ```
 ### Classic (Gradle prior to 2.1)
@@ -23,7 +23,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
@@ -33,7 +33,7 @@ You can download the ```.jar```-file from the button at the top and use as file 
 ```gradle
 buildscript {
   dependencies {
-    classpath files ("${projectDir}/lib/BuildConfig-1.1.6-SNAPSHOT.jar") // insert the path to .jar-file
+    classpath files ("${projectDir}/lib/BuildConfig-1.1.7-SNAPSHOT-SNAPSHOT.jar") // insert the path to .jar-file
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig'
@@ -163,7 +163,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
     }
 }
 plugins {
@@ -196,9 +196,13 @@ sourceSets {
         /* last but not least we want our buildconfig to be part of the classpath */
         compileClasspath += compileBuildConfig.outputs.files
         /* also we want the .class-file to be included in the default .jar-artifact,
-         * therefore we add our outputs to the sourceset's outputs, the first ()-method
-         *  is because there is also output for the dependency-cache we don't need */
-        output.dir compileBuildConfig.outputs.files.first ()
+         * therefore we add our outputs to the sourceset's outputs, we nee to filter out
+         * the dependency-cache */
+        compileBuildConfig.outputs.files.findAll {
+           !it.name.endsWith ('dependency-cache') // we don't want these
+        }.each {
+           output.dir it // add everything else
+        }
     }
 }
 ```
@@ -213,7 +217,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.6'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
