@@ -32,6 +32,7 @@ import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.UnknownConfigurationException
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.PluginManager
 import org.gradle.api.tasks.SourceSet
@@ -189,8 +190,10 @@ class BuildConfigPlugin implements Plugin<Project>
                   LOG.warn ('Probed for eclipse task but none is defined even though EclipsePlugin is found.')
                }
             }
-            /* workaround for Eclipse, running eclipse task after will add this to classpath */
-            def compiledClasses = compile.outputs.files
+            /* workaround for Eclipse, running eclipse task after will add this to classpath,
+             * since Gradle 3.0 this has to be wrapped into ConfigurableFileCollection */
+            FileCollection compiledClasses = p.files (compile.outputs.files)
+            /* this is no longer possible by gradle 3.0 */
             compiledClasses.builtBy compile
             /*
              * add dependency for sourceset compile configturation */
