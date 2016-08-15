@@ -162,7 +162,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
          }
       where:
-         gradleVersion << ['2.9', '2.14']
+         gradleVersion << ['2.9', '2.14.1', '3.0']
    }
    
    def 'buildconfig empty closure' () {
@@ -222,7 +222,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'NAME/java.lang.String/testProject'
          }
       where:
-         gradleVersion << ['2.9', '2.14']
+         gradleVersion << ['2.9', '2.14.1', '3.0']
    }
     
    def 'buildconfig empty closure with some properties set' () {
@@ -286,7 +286,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'NAME/java.lang.String/testProject'
          }
       where:
-         gradleVersion << ['2.9', '2.14']
+         gradleVersion << ['2.9', '2.14.1', '3.0']
    }
     
    def 'buildconfig empty closure with some properties set and two sourcesets' () {
@@ -381,7 +381,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'ONLY_OTHER_FIELD/java.lang.String/only other'
          }
       where:
-         gradleVersion << ['2.9', '2.14']
+         gradleVersion << ['2.9', '2.14.1', '3.0']
    }
     
    def 'buildconfig more complex closure' () {
@@ -467,7 +467,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
          }
       where:
-         gradleVersion << ['2.9', '2.14']
+         gradleVersion << ['2.9', '2.14.1', '3.0']
    }
     
    def cleanup ()
