@@ -201,8 +201,12 @@ class BuildConfigPlugin implements Plugin<Project>
              * compileCfg.dependencies.add (p.dependencies.create (compiledClasses))
              */
             sourceSet.compileClasspath += compiledClasses
-            /* only our buildconfig class, not dependency-cache or anything else */    
-            sourceSet.output.dir compiledClasses.first ()
+            /* add to classpath, but not the dependency-cache */    
+            compiledClasses.findAll { f ->
+               !f.name.endsWith ('dependency-cache')
+            }.each { f ->
+               sourceSet.output.dir f
+            }
                 
             /*
              * previously the jar would be manipulated via:

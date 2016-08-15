@@ -105,8 +105,8 @@ class BuildLogicFunctionalTest extends Specification {
             //compileJava.dependsOn compileBuildConfig
             sourceSets {
                 main {
-                    compileClasspath += compileBuildConfig.outputs.files
-                    output.dir compileBuildConfig.outputs.files.first ()
+                    compileClasspath += compileBuildConfig.outputs.files\n\
+                    compileBuildConfig.outputs.files.findAll { !it.name.endsWith ('dependency-cache') }.each { output.dir it }
                 }
             }
             """
