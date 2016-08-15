@@ -10,7 +10,7 @@ How to add as buildscript dependency .
 ### Easy (Gradle 2.1+)
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.7-SNAPSHOT'
+  id 'de.fuerstenau.buildconfig' version '1.1.7'
 }
 ```
 ### Classic (Gradle prior to 2.1)
@@ -23,7 +23,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
@@ -33,7 +33,7 @@ You can download the ```.jar```-file from the button at the top and use as file 
 ```gradle
 buildscript {
   dependencies {
-    classpath files ("${projectDir}/lib/BuildConfig-1.1.7-SNAPSHOT-SNAPSHOT.jar") // insert the path to .jar-file
+    classpath files ("${projectDir}/lib/BuildConfig-1.1.7-SNAPSHOT.jar") // insert the path to .jar-file
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig'
@@ -163,7 +163,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
+        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7'
     }
 }
 plugins {
@@ -217,7 +217,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.7'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
