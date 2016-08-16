@@ -154,7 +154,10 @@ buildConfig {
 ```
 ## Advanced usage
 ### Manual task wiring
-This is an example of manually creating the tasks and wiring them to generate and compile a build config for ```main```-```SourceSet```. This is very similar to the internal working of the plugin. We do not want to apply the plugin because that would trigger the automatic creation of tasks.
+This is an example of manually creating the tasks and wiring them to generate and compile a build config for ```main```-```SourceSet```. This is very similar to the internal working of the plugin.
+
+First we don't want the plugin to be applied, only to be resolved. This can be done like this
+#### Prior to Gradle 3.0
 ```gradle
 buildscript {
     repositories {
@@ -169,8 +172,20 @@ buildscript {
 plugins {
     id 'java'
 }
-// note: we don't apply the plugin, we need just the classpath
+```
+**Note:** we don't apply the plugin, we just need to resolve the classpath.
+#### Gradle 3.0
+Since Gradle 3.0 there is a new option to resolve a plugin and make it available on the classpath, but not to apply it.
+```gradle
+plugins {
+    id 'java'
+    id 'de.fuerstenau.buildconfig' version '1.1.7' apply false
+}
+```
+**Note:** The apply false at the end of the plugin declaration.
 
+And then we create the tasks and *wire* them
+```gradle
 /* the generating task, creates the .java-file */
 task generateBuildConfig (type: de.fuerstenau.buildconfig.GenerateBuildConfigTask) {
     /* we need to define an output dir for the generated .java-file */
