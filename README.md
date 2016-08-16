@@ -175,7 +175,7 @@ plugins {
 ```
 **Note:** we don't apply the plugin, we just need to resolve the classpath.
 #### Gradle 3.0
-Since Gradle 3.0 there is a new option to resolve a plugin and make it available on the classpath, but not to apply it.
+Since Gradle 3.0 there is a new option to resolve a plugin and make it available on the classpath, but not to apply it. That way You can omit the whole ```buildscript```-closure from above and instead use only the ```plugins```-closure.
 ```gradle
 plugins {
     id 'java'
