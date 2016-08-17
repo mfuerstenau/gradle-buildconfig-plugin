@@ -5,6 +5,11 @@
 # BuildConfig Gradle-plugin for Java and Groovy projects
 Provides a class containing constants (```public static final```) defined in the buildscript and available in the project. These can contain simple infos like  application _name_ or _version_ but also input from other plugins like _subversion commit number_ or _git commit hash_.
 
+## Compatibility
+
+* Oracle JDK and OpenJDK 1.7 compatible,
+* Gradle 2.9-3.0 with Java and/or Groovy plugin tested.
+
 ## Dependency
 How to add as buildscript dependency .
 ### Easy (Gradle 2.1+)
