@@ -3,7 +3,7 @@
 [![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
 # BuildConfig Gradle-plugin for Java and Groovy projects
-Provides a class containing constants (```public static final```) defined in the buildscript and available in the project. These can contain simple infos like  application _name_ or _version_ but also input from other plugins like _subversion commit number_ or _git commit hash_.
+Provides a class (or multiple) containing constants (```public static final```) defined in the buildscript and available in the project. It can contain simple infos like  application _name_ or _version_ but also input from other plugins like _subversion commit number_ or _git commit hash_.
 
 ## Compatibility
 
