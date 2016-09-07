@@ -85,7 +85,7 @@ The plugin can be configured using the provided ```buildconfig { }```configurati
 ```gradle
 buildConfig {
     appName = project.name       // sets value of NAME field
-    appVersion = project.version // sets value of VERSION field,
+    version = project.version // sets value of VERSION field,
                                  // 'unspecified' if project.version is not set
     
     clsName = 'BuildConfig'      // sets the name of the BuildConfig class
