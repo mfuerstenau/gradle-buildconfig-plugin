@@ -303,15 +303,23 @@ class BuildLogicFunctionalTest extends Specification {
                 id 'de.fuerstenau.buildconfig'
             }
 
+            ext {
+                stringValue = 'foo'
+                intValue = '44'
+                longValue = '44L'
+                floatValue = '1.11f'
+                doubleValue = '3.14'
+            }
+
             version = '1.3.3'
             group = 'org.sample'
 
             buildConfig {
-                buildConfigField 'String', 'MY_STRING', {'foo'}
-                buildConfigField 'int', 'MY_INT', {'44'}
-                buildConfigField 'long', 'MY_LONG', {'44L'}
-                buildConfigField 'float', 'MY_FLOAT', {'1.11f'}
-                buildConfigField 'double', 'MY_DOUBLE', {'3.14'}
+                buildConfigField 'String', 'MY_STRING', {project.ext.stringValue}
+                buildConfigField 'int', 'MY_INT', {project.ext.intValue}
+                buildConfigField 'long', 'MY_LONG', {project.ext.longValue}
+                buildConfigField 'float', 'MY_FLOAT', {project.ext.floatValue}
+                buildConfigField 'double', 'MY_DOUBLE', {project.ext.doubleValue}
             }
 
             """
