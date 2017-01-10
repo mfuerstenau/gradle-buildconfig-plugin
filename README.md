@@ -46,7 +46,7 @@ apply plugin: 'de.fuerstenau.buildconfig'
 By default a ```BuildConfig``` class ```BuildConfig``` in a package equal to the defined ```group``` or ```de.fuerstenau.buildconfig``` if no ```group``` is defined. Also the ```BuildConfig``` is by default generated for the _main_ ```SourceSet```.
 
 ## BuildConfig
-A ```BuildConfig``` class (class name can be configured) has alsway two (2) non-optional fields that are always provided, but may not always contain useful data, depending on the availability.
+A ```BuildConfig``` class (class name can be configured) has always two (2) non-optional fields that are always provided, but may not always contain useful data, depending on the availability.
 * ```String NAME``` - the application name (default: ```project.name```)
 * ```String VERSION``` - the application version (default: ```project.version``` or if former not set ```"unspecified"```)
 
