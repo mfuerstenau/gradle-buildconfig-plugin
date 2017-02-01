@@ -50,7 +50,7 @@ A ```BuildConfig``` class (class name can be configured) has always two (2) non-
 * ```String NAME``` - the application name (default: ```project.name```)
 * ```String VERSION``` - the application version (default: ```project.version``` or if former not set ```"unspecified"```)
 
-A ```BuildCOnfig``` is generated as _Java_ code and then compiled to a ```.class```-file and added to the _classpath_ of a ```SourceSet``` and also added to the _outputs_, therefore contained in a ```.jar```-file produced from these _outputs_.
+A ```BuildConfig``` is generated as _Java_ code and then compiled to a ```.class```-file and added to the _classpath_ of a ```SourceSet``` and also added to the _outputs_, therefore contained in a ```.jar```-file produced from these _outputs_.
 
 Here is an example how such a generated _Java_ class might look like:
 ```java
@@ -81,7 +81,7 @@ Of course the generated _Java_ code won't normally show up because the compiled 
 
 ## Configuration
 ### Basic configuration
-The plugin can be configured using the provided ```buildconfig { }```configuration closure. The following closure show the the basic properties and their default values:
+The plugin can be configured using the provided ```buildConfig { }```configuration closure. The following closure show the the basic properties and their default values:
 ```gradle
 buildConfig {
     appName = project.name       // sets value of NAME field
@@ -110,6 +110,9 @@ buildConfig {
     buildConfigField 'String', 'MY_STR_FIELD', '"my message to the app"'
     buildConfigField 'int', 'MY_INT_FIELD', '42'
     buildConfigField 'byte[]', 'MY_BYTE_ARRAY_FIELD', '{ (byte) 0xfa, (byte) 0x20, (byte) 0x22 }'
+    buildConfigField 'long', 'BUILD_UNIXTIME', System.currentTimeMillis() + 'L'
+    buildConfigField 'java.util.Date', 'BUILD_DATE', 'new java.util.Date(' + System.currentTimeMillis() + 'L)'
+    buildConfigField 'java.time.Instant', 'BUILD_INSTANT', 'java.time.Instant.ofEpochMilli(' + System.currentTimeMillis() + 'L)'
 }
 ```
 **Note:** There is some _black magic_ included to make ```String``` and ```char``` constans more legible, instead of
