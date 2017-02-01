@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat
 plugins {
     id 'groovy'
     id 'maven'
-    id "com.gradle.plugin-publish" version "0.9.4"
+    id "com.gradle.plugin-publish" version "0.9.7"
 }
 
 sourceCompatibility = '1.7'
