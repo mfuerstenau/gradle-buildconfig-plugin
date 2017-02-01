@@ -14,7 +14,7 @@ if (!hasProperty('mainClass')) {
 }
 
 group = 'de.fuerstenau'
-version = '1.1.7'
+version = '1.1.8-SNAPSHOT'
 
 repositories {
     mavenCentral()
