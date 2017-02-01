@@ -78,6 +78,21 @@ class BuildConfigSourceSet implements Named
    }
    
    /**
+    * Adds class field, replacing existing for class field
+    * name.
+    *
+    * @param type   Type of class field
+    * @param type   Name of class field
+    * @param value  Closure returning value of class field
+    *
+    * @return       existing class field for name
+    */
+   ClassField buildConfigField (String type, String name, Closure<String> value)
+   {
+      addClassField (classFields, new ClassFieldClosureImpl (type, name, value))
+   }
+
+   /**
     * Adds class field to destination map, replacing existing for class field
     * name.
     * 

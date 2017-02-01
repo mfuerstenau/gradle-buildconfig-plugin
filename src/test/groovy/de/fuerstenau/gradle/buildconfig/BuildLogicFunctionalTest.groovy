@@ -289,6 +289,92 @@ class BuildLogicFunctionalTest extends Specification {
          gradleVersion << ['2.9', '2.14.1', '3.0']
    }
     
+   def 'buildconfig closure with closures as a field values' () {
+      setup: 'buildscript is prepared and project built'
+      /* setting the project name of the test project */
+      settingsFile << "rootProject.name = 'testProject'"
+      /* */
+      def pluginClasspathAsFileCollcetion =
+
+      buildFile << """import de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask
+
+            plugins {
+                id 'java'
+                id 'de.fuerstenau.buildconfig'
+            }
+
+            ext {
+                stringValue = 'foo'
+                intValue = '44'
+                longValue = '44L'
+                floatValue = '1.11f'
+                doubleValue = '3.14'
+            }
+
+            version = '1.3.3'
+            group = 'org.sample'
+
+            buildConfig {
+                buildConfigField 'String', 'MY_STRING', {project.ext.stringValue}
+                buildConfigField 'int', 'MY_INT', {project.ext.intValue}
+                buildConfigField 'long', 'MY_LONG', {project.ext.longValue}
+                buildConfigField 'float', 'MY_FLOAT', {project.ext.floatValue}
+                buildConfigField 'double', 'MY_DOUBLE', {project.ext.doubleValue}
+            }
+
+            """
+      println ("--- build.gradle ---")
+      buildFile.readLines ().each { line ->
+         println line
+      }
+
+      when:
+      def result = GradleRunner.create()
+              .withGradleVersion(gradleVersion)
+              .withPluginClasspath(pluginClasspath)
+              .withProjectDir(testProjectDir.root)
+              .withArguments('clean', 'build')
+              .build ()
+
+      println result.output
+
+      then: 'buildconfig class exists'
+         /* checking the existence of the generated source */
+         def buildConfigSource = new File (testProjectDir.root, 'build/gen/buildconfig/src/main/org/sample/BuildConfig.java')
+         buildConfigSource.exists ()
+         /* checking the existence of the generated class */
+         def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/BuildConfig.class')
+         buildConfigClass.exists ()
+
+      and: 'jar exists'
+         def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.3.3.jar')
+         jarFile.exists ()
+
+      and: 'all fields are in the class file'
+         with (TestUtil.fieldsFromClass (new File (testProjectDir.root, "build/gen/buildconfig/classes/main"), 'org.sample.BuildConfig')) { fields->
+            fields.contains 'VERSION/java.lang.String/1.3.3'
+            fields.contains 'NAME/java.lang.String/testProject'
+            fields.contains 'MY_STRING/java.lang.String/foo'
+            fields.contains 'MY_INT/int/44'
+            fields.contains 'MY_LONG/long/44'
+            fields.contains 'MY_FLOAT/float/1.11'
+            fields.contains 'MY_DOUBLE/double/3.14'
+      }
+
+      and: 'all fields are in the class file'
+         with (TestUtil.fieldsFromJar (new File (testProjectDir.root, "build/libs/testProject-1.3.3.jar"), 'org.sample.BuildConfig')) { fields->
+            fields.contains 'VERSION/java.lang.String/1.3.3'
+            fields.contains 'NAME/java.lang.String/testProject'
+            fields.contains 'MY_STRING/java.lang.String/foo'
+            fields.contains 'MY_INT/int/44'
+            fields.contains 'MY_LONG/long/44'
+            fields.contains 'MY_FLOAT/float/1.11'
+            fields.contains 'MY_DOUBLE/double/3.14'
+         }
+      where:
+         gradleVersion << ['2.9', '2.14.1', '3.0']
+   }
+
    def 'buildconfig empty closure with some properties set and two sourcesets' () {
       setup: 'buildscript is prepared and project built'
       /* setting the project name of the test project */
