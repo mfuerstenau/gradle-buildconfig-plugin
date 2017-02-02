@@ -23,24 +23,15 @@
 
 package de.fuerstenau.gradle.buildconfig
 
-import org.gradle.api.GradleException
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.UnknownDomainObjectException
-import org.gradle.api.UnknownTaskException
+import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.plugins.PluginManager
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.gradle.plugins.ide.eclipse.EclipsePlugin
 
 /**
  * @author Malte Fürstenau
@@ -62,14 +53,14 @@ class BuildConfigPlugin implements Plugin<Project>
       BuildConfigPlugin.class.getCanonicalName ())
 
    private Project p
-    
+
    /**
     * Get the compile-{@link org.gradle.api.artifacts.Configuration }
     * corresponding to the name of given {@link BuildConfigSourceSet}.
-    * 
+    *
     * @param cfg BuildConfigSourceSet
     * @return corresponding <i>compile</i>-Configuration
-    * 
+    *
     * @exception UnknownConfigurationException is thrown if there is no
     * corresponding <i>compile</i>-{@link org.gradle.api.artifacts.Configuration }
     */
@@ -91,10 +82,10 @@ class BuildConfigPlugin implements Plugin<Project>
    /**
     * Get the corresponding {@link org.gradle.api.tasks.SourceSet} to the
     * {@link BuildConfigSourceSet}.
-    * 
+    *
     * @param cfg BuildConfigSourceSet
     * @return SourceSet
-    * 
+    *
     * @exception UnknownDomainObjectException is thrown when there is no
     * corresponding {@link org.gradle.api.tasks.SourceSet}
     */
@@ -120,11 +111,10 @@ class BuildConfigPlugin implements Plugin<Project>
             "${prefix}${sourceSetName.capitalize()}${suffix}"
    }
 
-   
    private GenerateBuildConfigTask createGenerateTask (Project p , BuildConfigSourceSet cfg)
    {
       final String generateTaskName = getTaskName ("generate", cfg.name, "BuildConfig")
-      
+
       final GenerateBuildConfigTask generate = p.task (generateTaskName, type: GenerateBuildConfigTask) {
          /* configure generate task with values from the extension */
          packageName = cfg.packageName ?: p.group ?: DEFAULT_PACKAGENAME
@@ -139,11 +129,11 @@ class BuildConfigPlugin implements Plugin<Project>
       }
       return generate
    }
-   
+
    private JavaCompile createCompileTask (Project p , BuildConfigSourceSet cfg, GenerateBuildConfigTask generate)
    {
       final String compileTaskName = getTaskName ("compile", cfg.name, "BuildConfig")
-      
+
       final JavaCompile compile = p.task (compileTaskName, type: JavaCompile, dependsOn: generate) {
          /* configure compile task */
          classpath = p.files ()
@@ -152,7 +142,7 @@ class BuildConfigPlugin implements Plugin<Project>
       }
       return compile
    }
-   
+
    @Override
    void apply (Project p)
    {
@@ -169,16 +159,16 @@ class BuildConfigPlugin implements Plugin<Project>
             final Configuration compileCfg = getCompileConfiguration (cfg)
 
             final GenerateBuildConfigTask generate = createGenerateTask (p, cfg)
-            
+
             generate.outputDir = p.buildDir.toPath ()
             .resolve (BuildConfigPlugin.FD_SOURCE_OUTPUT)
             .resolve (cfg.name ?: DEFAULT_SOURCESET)
             .toFile ()
-            
+
             LOG.info ("Created task <{}> for sourceSet <{}>.", generate.name, cfg.name)
 
             final JavaCompile compile = createCompileTask (p, cfg, generate)
-            
+
             LOG.info ("Created compiling task <{}> for sourceSet <{}>", compile.name, cfg.name)
 
             if (p.plugins.hasPlugin ('org.gradle.eclipse'))
@@ -192,7 +182,10 @@ class BuildConfigPlugin implements Plugin<Project>
             }
             /* workaround for Eclipse, running eclipse task after will add this to classpath,
              * since Gradle 3.0 this has to be wrapped into ConfigurableFileCollection */
-            FileCollection compiledClasses = p.files (compile.outputs.files)
+            FileCollection compiledClasses = p.files (compile.outputs.files.filter { f ->
+               !f.name.endsWith ('dependency-cache')
+            })
+
             /* this is no longer possible by gradle 3.0 */
             compiledClasses.builtBy compile
             /*
@@ -201,13 +194,11 @@ class BuildConfigPlugin implements Plugin<Project>
              * compileCfg.dependencies.add (p.dependencies.create (compiledClasses))
              */
             sourceSet.compileClasspath += compiledClasses
-            /* add to classpath, but not the dependency-cache */    
-            compiledClasses.findAll { f ->
-               !f.name.endsWith ('dependency-cache')
-            }.each { f ->
-               sourceSet.output.dir f
-            }
-                
+            /* add to classpath, but not the dependency-cache */
+             compiledClasses.each { f ->
+                 sourceSet.output.dir f
+             }
+
             /*
              * previously the jar would be manipulated via:
              * def jarTaskName = p.convention.getPlugin (JavaPluginConvention).sourceSets.getByName (cfg.name).getJarTaskName()
@@ -218,9 +209,19 @@ class BuildConfigPlugin implements Plugin<Project>
              *        }
              * }
              */
-            
+
             LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
+
+            if (p.plugins.hasPlugin ('org.gradle.idea'))
+            {
+               LOG.debug ('IDEA plugin is found.')
+               Configuration providedCfg = p.configurations.create(getTaskName('provided', cfg.name, 'BuildConfig'))
+               providedCfg.dependencies.add (p.dependencies.create (compiledClasses))
+               p.idea.module.scopes.PROVIDED.plus += [ providedCfg ]
+            }
          }
+
+
          LOG.debug "BuildConfigPlugin loaded"
       }
    }
@@ -228,9 +229,9 @@ class BuildConfigPlugin implements Plugin<Project>
    private List<BuildConfigSourceSet> getBuildConfigSourceSets ()
    {
       BuildConfigExtension ext = p.extensions.getByType (BuildConfigExtension)
-        
+
       List<BuildConfigSourceSet>  res = new ArrayList<> ()
-        
+
       if (ext.sourceSets.size () > 0)
       {
          ext.sourceSets.each { BuildConfigSourceSet cfg ->
