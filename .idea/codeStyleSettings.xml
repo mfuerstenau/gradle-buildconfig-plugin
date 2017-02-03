@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectCodeStyleSettingsManager">
+    <option name="PER_PROJECT_SETTINGS">
+      <value>
+        <codeStyleSettings language="Groovy">
+          <option name="SPACE_BEFORE_METHOD_CALL_PARENTHESES" value="true" />
+          <option name="SPACE_BEFORE_METHOD_PARENTHESES" value="true" />
+          <option name="SPACE_BEFORE_ANOTATION_PARAMETER_LIST" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="3" />
+            <option name="TAB_SIZE" value="3" />
+          </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JAVA">
+          <option name="BRACE_STYLE" value="2" />
+          <option name="CLASS_BRACE_STYLE" value="2" />
+          <option name="METHOD_BRACE_STYLE" value="2" />
+          <option name="ELSE_ON_NEW_LINE" value="true" />
+          <option name="WHILE_ON_NEW_LINE" value="true" />
+          <option name="CATCH_ON_NEW_LINE" value="true" />
+          <option name="FINALLY_ON_NEW_LINE" value="true" />
+          <option name="SPACE_BEFORE_METHOD_CALL_PARENTHESES" value="true" />
+          <option name="SPACE_BEFORE_METHOD_PARENTHESES" value="true" />
+          <option name="SPACE_BEFORE_ARRAY_INITIALIZER_LBRACE" value="true" />
+          <option name="SPACE_BEFORE_ANOTATION_PARAMETER_LIST" value="true" />
+          <indentOptions>
+            <option name="INDENT_SIZE" value="3" />
+            <option name="TAB_SIZE" value="3" />
+          </indentOptions>
+        </codeStyleSettings>
+      </value>
+    </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+    <option name="PREFERRED_PROJECT_CODE_STYLE" value="mfuerstenau" />
+  </component>
+</project>
