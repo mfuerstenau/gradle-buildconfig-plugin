@@ -3,15 +3,11 @@
 [![Download](https://api.bintray.com/packages/mfuerstenau/maven/gradle-buildconfig-plugin/images/download.svg) ](https://bintray.com/mfuerstenau/maven/gradle-buildconfig-plugin/_latestVersion)
 
 # BuildConfig Gradle-plugin for Java and Groovy projects
-Provides a class (or multiple) containing constants (```public static final```) defined in the buildscript and available in the project. It can contain simple infos like  application _name_ or _version_ but also input from other plugins like _subversion commit number_ or _git commit hash_.
-
-## Compatibility
-
-* Oracle JDK and OpenJDK 1.7 compatible,
-* Gradle 2.9-3.0 with Java and/or Groovy plugin tested.
+Includes a class with constants accessible at runtime set by the build script process. The constants can be defined using a closure
 
 ## Dependency
-How to add as buildscript dependency .
+There are many ways to include the dependency.
+
 ### Easy (Gradle 2.1+)
 ```gradle
 plugins {
@@ -45,6 +41,33 @@ apply plugin: 'de.fuerstenau.buildconfig'
 ```
 By default a ```BuildConfig``` class ```BuildConfig``` in a package equal to the defined ```group``` or ```de.fuerstenau.buildconfig``` if no ```group``` is defined. Also the ```BuildConfig``` is by default generated for the _main_ ```SourceSet```.
 
+### IDEs
+
+There are requirements for different IDEs.
+
+#### Netbeans
+
+As of Netbeans 8.1 with gradle plugin there is no further requirement. Works out of the box. 
+ 
+#### Intellij IDEA
+
+Tested with IntelliJ IDEA 2016. Generation works out of the box. The generated classes are only resolved when the
+_IDEA gradle plugin_ is applied and after compiling.
+
+```groovy
+apply plugin: 'idea'
+```
+
+#### Eclipse
+
+Eclipse (_Mars_) with the buildship plugin resolves the generated classes after a project refresh. Also the
+_Eclipse gradle plugin_ needs to be applied.
+
+```groovy
+apply plugin: 'eclipse'
+```
+
+
 ## BuildConfig
 A ```BuildConfig``` class (class name can be configured) has always two (2) non-optional fields that are always provided, but may not always contain useful data, depending on the availability.
 * ```String NAME``` - the application name (default: ```project.name```)
@@ -77,7 +100,7 @@ public class HelloBuildConfig
    }
 }
 ```
-Of course the generated _Java_ code won't normally show up because the compiled class will be added to the classpath and it really depends on the _IDE_ used, if the class is visible somewhere (Netbeans 8.1 show it after building reloading a project as dependency).
+The generated _Java_ code won't normally show up because the compiled class will be added to the classpath and it really depends on the _IDE_ used, if the class is visible somewhere (Netbeans 8.1 shows it after building reloading a project as dependency), see IDE section.
 
 ## Configuration
 ### Basic configuration
@@ -100,14 +123,19 @@ buildConfig {
 Additional fields can be added to the ```BuildConfig``` class easily through the ```buildConfigField (String type, String name, String value)```-method. This method can be repeated multiple time. 
 * ```type``` - the of the field, which can be any _Java_ _object_ or _Java primitive type_ (eg. ```'int'``` or ```'org.sampel.SomeType'```, note: parameter is a ```String```),
 * ```name``` - the name of the field, as the field will be a ```static final``` conventions says it should be an uppercasename (eg. ```'MY_FIELD'```, also a ```String```)
-* and last but not least ```value``` - the value of the field, must be a valid value for the type (eg. ```'13'``` or ```' { (byte) 0xfe, (byte) 0x11 }'```, note: also a ```String```).
+* and last but not least ```value``` - the value of the field, must be a valid value for the type (eg. ```'13'``` or ```' { (byte) 0xfe, (byte) 0x11 }'```, note: as a ```String```).
 
-No ```import```-statements are generated, if you need a type that is not a Java standard type, you need to provide a fully qualified class name and this type must also be available in application. Additionally no syntax checks are performed, therefore entering any invalid or dangerous values may cause harm (remember to escape if the values come from unsafe sources).
+**Note:** Instead of an explicit value a ```Closure<String>``` is also possible through ```buildConfigField (String, String, Closure<String>)``` method.
+
+**Note:** No ```import```-statements are generated, if you need a type that is not a Java standard type, you need to provide a fully qualified class name and this type must also be available in application. Additionally no syntax checks are performed, therefore entering any invalid or dangerous values may cause harm (remember to escape if the values come from unsafe sources).
 
 Example:
 ```gradle
 buildConfig {
     buildConfigField 'String', 'MY_STR_FIELD', '"my message to the app"'
+    buildConfigField 'String', 'MY_STR_FIELD2', {
+        'some lazy evaluated value' 
+    }
     buildConfigField 'int', 'MY_INT_FIELD', '42'
     buildConfigField 'byte[]', 'MY_BYTE_ARRAY_FIELD', '{ (byte) 0xfa, (byte) 0x20, (byte) 0x22 }'
     buildConfigField 'long', 'BUILD_UNIXTIME', System.currentTimeMillis() + 'L'
@@ -115,7 +143,7 @@ buildConfig {
     buildConfigField 'java.time.Instant', 'BUILD_INSTANT', 'java.time.Instant.ofEpochMilli(' + System.currentTimeMillis() + 'L)'
 }
 ```
-**Note:** There is some _black magic_ included to make ```String``` and ```char``` constans more legible, instead of
+**Note:** There is some _black magic_ included to make ```String``` and ```char``` constants more legible, instead of
 ```gradle
 buildConfigField 'String', 'MY_STR_FIELD', '"my message to the app"'
 buildConfigField 'char', 'MY_CHAR_FIELD', "'x'" // or '\'x\'' for that matter
@@ -182,7 +210,7 @@ plugins {
 }
 ```
 **Note:** we don't apply the plugin, we just need to resolve the classpath.
-#### Gradle 3.0
+#### Gradle 3.0+
 Since Gradle 3.0 there is a new option to resolve a plugin and make it available on the classpath, but not to apply it. That way You can omit the whole ```buildscript```-closure from above and instead use only the ```plugins```-closure.
 ```gradle
 plugins {
@@ -245,5 +273,11 @@ buildscript {
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
+
+## Compatibility
+
+* Oracle JDK and OpenJDK 1.7 compatible,
+* Gradle 2.9-3.3 with Java and/or Groovy plugin tested.
+
 ## Gradle plugin portal
 The plugin is listed at [https://plugins.gradle.org/plugin/de.fuerstenau.buildconfig](https://plugins.gradle.org/plugin/de.fuerstenau.buildconfig).
