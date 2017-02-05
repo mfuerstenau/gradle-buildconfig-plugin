@@ -553,7 +553,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
          }
       where:
-         gradleVersion << ['2.9', '2.14.1', '3.0']
+         gradleVersion << ['2.9', '2.14.1', '3.3']
    }
     
    def cleanup ()
