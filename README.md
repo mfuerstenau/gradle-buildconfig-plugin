@@ -11,7 +11,7 @@ There are many ways to include the dependency.
 ### Easy (Gradle 2.1+)
 ```gradle
 plugins {
-  id 'de.fuerstenau.buildconfig' version '1.1.8-SNAPSHOT'
+  id 'de.fuerstenau.buildconfig' version '1.1.8'
 }
 ```
 ### Classic (Gradle prior to 2.1)
@@ -24,7 +24,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
@@ -34,7 +34,7 @@ You can download the ```.jar```-file from the button at the top and use as file 
 ```gradle
 buildscript {
   dependencies {
-    classpath files ("${projectDir}/lib/BuildConfig-1.1.8-SNAPSHOT-SNAPSHOT.jar") // insert the path to .jar-file
+    classpath files ("${projectDir}/lib/BuildConfig-1.1.8-SNAPSHOT.jar") // insert the path to .jar-file
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig'
@@ -202,7 +202,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8-SNAPSHOT'
+        classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8'
     }
 }
 plugins {
@@ -215,7 +215,7 @@ Since Gradle 3.0 there is a new option to resolve a plugin and make it available
 ```gradle
 plugins {
     id 'java'
-    id 'de.fuerstenau.buildconfig' version '1.1.8-SNAPSHOT' apply false
+    id 'de.fuerstenau.buildconfig' version '1.1.8' apply false
 }
 ```
 **Note:** The apply false at the end of the plugin declaration.
@@ -268,7 +268,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8-SNAPSHOT'
+    classpath 'gradle.plugin.de.fuerstenau:BuildConfigPlugin:1.1.8'
   }
 }
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
