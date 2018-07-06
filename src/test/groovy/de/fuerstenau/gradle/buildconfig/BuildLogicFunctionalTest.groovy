@@ -94,6 +94,7 @@ class BuildLogicFunctionalTest extends Specification {
                 buildConfigField 'String', 'MY_STR', 'my string'
                 buildConfigField 'byte', 'MY_BYTE', '(byte) 0xff'
                 buildConfigField 'byte[]', 'MY_BYTEARR', '{ (byte) 0xff, (byte) 0xa, (byte) 0x20 }'
+                buildConfigField 'String', 'MY_NULL_STR', null
             }
 
             task compileBuildConfig(type:JavaCompile, dependsOn: generateBuildConfig) {
@@ -131,7 +132,7 @@ class BuildLogicFunctionalTest extends Specification {
          /* checking the existence of the generated class */
          def buildConfigClass = new File (testProjectDir.root, 'build/gen/buildconfig/classes/main/org/sample/MainConfig.class')
          buildConfigClass.exists ()
-
+         
       and: 'jar exists'
          def jarFile = new File (testProjectDir.root, 'build/libs/testProject-1.2-SNAPSHOT.jar')
          jarFile.exists ()
@@ -147,6 +148,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_STR/java.lang.String/my string'
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+            fields.contains 'MY_NULL_STR/java.lang.String/null'
       }
 
       and: 'all fields are in the class file'
@@ -160,6 +162,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_STR/java.lang.String/my string'
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+            fields.contains 'MY_NULL_STR/java.lang.String/null'
          }
       where:
          gradleVersion << ['2.9', '2.14.1', '3.0']
@@ -498,6 +501,7 @@ class BuildLogicFunctionalTest extends Specification {
                 buildConfigField 'String', 'MY_STR', 'my string'
                 buildConfigField 'byte', 'MY_BYTE', '(byte) 0xff'
                 buildConfigField 'byte[]', 'MY_BYTEARR', '{ (byte) 0xff, (byte) 0xa, (byte) 0x20 }'
+                buildConfigField 'String', 'MY_NULL_STR', null
             }
             """
       println ("--- build.gradle ---")
@@ -538,6 +542,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_STR/java.lang.String/my string'
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+            fields.contains 'MY_NULL_STR/java.lang.String/null'
       }
 
       and: 'all fields are in the class file'
@@ -551,6 +556,7 @@ class BuildLogicFunctionalTest extends Specification {
             fields.contains 'MY_STR/java.lang.String/my string'
             fields.contains 'MY_BYTE/byte/-1'
             fields.contains 'MY_BYTEARR/[B/[-1, 10, 32]'
+            fields.contains 'MY_NULL_STR/java.lang.String/null'
          }
       where:
          gradleVersion << ['2.9', '2.14.1', '3.3']

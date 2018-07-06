@@ -69,7 +69,10 @@ class ClassWriter extends Writer
       switch (cf.type)
       {
          case "String":
-           sb << "\"${cf.value}\""
+           if (cf.value != null)
+             sb << "\"${cf.value}\""
+           else
+             sb << "null"
            break
          case "char":
            sb << "'${cf.value}'"
