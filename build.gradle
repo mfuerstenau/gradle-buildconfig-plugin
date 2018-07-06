@@ -94,10 +94,6 @@ pluginBundle {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
-}
-
 test {
     testLogging {
         events "failed"
