@@ -41,7 +41,7 @@ class ClassWriter extends Writer
    {
       if (isClass)
          throw new IllegalStateException ("cannot write package if class is already written")
-      delegate.write ("package ${pkg};\n\n")
+      delegate.write ("package ${pkg};\n\nimport javax.annotation.Generated;\n\n")
       this
    }
 
@@ -50,7 +50,7 @@ class ClassWriter extends Writer
       if (isClass)
          throw new IllegalStateException ("cannot write class if class is already written")
       StringBuilder sb = StringBuilder.newInstance()
-      sb << "/** DO NOT EDIT. GENERATED CODE */\npublic final class ${cls}\n{\n"
+      sb << "@Generated(\"de.fuerstenau.buildconfig\")\npublic final class ${cls}\n{\n"
       sb << "   private ${cls} () { /*. no instance */ }\n\n"
       delegate.write (sb.toString ())
       isClass = true
