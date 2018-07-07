@@ -59,6 +59,10 @@ class BuildConfigSourceSet implements Named
     * Package for BuildConfig class.
     */
    String packageName
+   /**
+    * Whether or not to hide buildinfo data behind getters 
+    */
+   boolean useGetters
 
    Map<String, ClassField> classFields = new LinkedHashMap<>()
 
@@ -136,6 +140,7 @@ class BuildConfigSourceSet implements Named
       result.packageName = other.packageName ?: this.packageName
       result.version = other.version ?: this.version
       result.clsName = other.clsName ?: this.clsName
+      result.useGetters = other.useGetters ?: this.useGetters
       classFields.each {
          if (it.value != null)
          {

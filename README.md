@@ -154,6 +154,8 @@ buildConfigField 'String', 'MY_STR_FIELD', 'my message to the app'
 buildConfigField 'char', 'MY_CHAR_FIELD', 'x'
 ```
 
+If you are concerned about mutability of your referencetypes you may specify ```useGetters = true``` in buildConfig in order to hide your data behind getters.
+
 ### Per-SourceSet-Configuration
 It's possible to configure per ```SourceSet```. Without per-SourceSet-configuration the ```BuildConfig``` is generated for the _default_ ```SourceSet``` which is ```main```. Th configuration closure provides a method ```sourceSets (Closure sourceSetsClosure)``` which can be used to accomplish this. The parameter ```sourceSetsClosure``` contains the names (case-sensitive) of ```SourceSet``` instances followed by a configuration closure which has the same properties and methods as the ```buildConfig``` configuration closure, minus a ```sourceSets```-method because we do not want endless recursion.
 
