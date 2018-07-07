@@ -223,7 +223,7 @@ plugins {
 And then we create the tasks and *wire* them
 ```gradle
 /* the generating task, creates the .java-file */
-task generateBuildConfig (type: de.fuerstenau.buildconfig.GenerateBuildConfigTask) {
+task generateBuildConfig (type: de.fuerstenau.gradle.buildconfig.GenerateBuildConfigTask) {
     /* we need to define an output dir for the generated .java-file */
     outputDir = new File ("${buildDir}/gen/buildconfig/src/main/")
 
