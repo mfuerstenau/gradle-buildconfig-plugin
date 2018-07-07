@@ -274,6 +274,17 @@ buildscript {
 apply plugin: 'de.fuerstenau.buildconfig' // actually applies the plugin
 ```
 
+## Pretty printing
+The contents of BuildInfo can be printed, either directly to standard out via the method ```prettyPrint();``` or in a user defined way:
+```java
+de.fuerstenau.BuildInfo.prettyPrint((fields) ->
+{
+    for (final Field field : fields)
+        System.out.println("Name: " + field.getName());
+});
+```
+This allows one to conveniently render the full set of fields to XML, JSON, or write to a log, etc.
+
 ## Compatibility
 
 * Oracle JDK and OpenJDK 1.7 compatible,

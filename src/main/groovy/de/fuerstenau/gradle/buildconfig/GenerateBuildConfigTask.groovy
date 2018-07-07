@@ -237,7 +237,7 @@ class GenerateBuildConfigTask extends DefaultTask
 
       new ClassWriter (
          Files.newBufferedWriter (outputFile, Charset.forName (charset),
-            StandardOpenOption.CREATE)).withCloseable { w ->
+            StandardOpenOption.CREATE), packageName, clsName).withCloseable { w ->
          w.writePackage (packageName).writeClass (clsName)
 
          mergedClassFields.values ().each { cf ->
