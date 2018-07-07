@@ -96,13 +96,19 @@ class GenerateBuildConfigTask extends DefaultTask
     */ 
    @Input
    String appName
+   
+   /**
+    * Whether or not to hide buildinfo data behind getters 
+    */
+   @Input
+   boolean useGetters
 
     /**
      * Target directory of generated class.
      */
    @OutputDirectory
    File outputDir
-
+   
    /**
     * Fields of generated class.
     */
@@ -118,6 +124,7 @@ class GenerateBuildConfigTask extends DefaultTask
       appName = project.name
       sourceSet = DEFAULT_SOURCESET
       charset = DEFAULT_CHARSET
+      useGetters = false
       
       LOG.debug "{}: GenerateBuildConfigTask created", name
    }
@@ -237,7 +244,7 @@ class GenerateBuildConfigTask extends DefaultTask
 
       new ClassWriter (
          Files.newBufferedWriter (outputFile, Charset.forName (charset),
-            StandardOpenOption.CREATE)).withCloseable { w ->
+            StandardOpenOption.CREATE), useGetters).withCloseable { w ->
          w.writePackage (packageName).writeClass (clsName)
 
          mergedClassFields.values ().each { cf ->

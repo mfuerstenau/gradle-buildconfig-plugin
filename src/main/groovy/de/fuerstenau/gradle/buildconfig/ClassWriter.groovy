@@ -31,10 +31,12 @@ class ClassWriter extends Writer
 
    private final Writer delegate
    private boolean isClass
+   private boolean useGetters
 
-   ClassWriter (Writer delegate)
+   ClassWriter (Writer delegate, boolean useGetters)
    {
       this.delegate = delegate
+      this.useGetters = useGetters
    }
 
    ClassWriter writePackage (String pkg) throws IOException
@@ -65,7 +67,7 @@ class ClassWriter extends Writer
       if (cf.getDocumentation () != null && !cf.getDocumentation ().isEmpty ())
          sb << "   ${cf.documentation}\n"
       cf.annotations.each { annot -> sb << "   ${annot}\n" }
-      sb << "   public static final ${cf.type} ${cf.name} = "
+      sb << "   ${useGetters ? "private" : "public"} static final ${cf.type} ${cf.name} = "
       switch (cf.type)
       {
          case "String":
@@ -78,6 +80,8 @@ class ClassWriter extends Writer
              sb << cf.value
       }
       sb << ";\n\n"
+      if (useGetters)
+        sb << "   public static final ${cf.type} get${cf.name}(){ return ${cf.name};} \n\n"
       delegate.write (sb.toString ())
       this
    }

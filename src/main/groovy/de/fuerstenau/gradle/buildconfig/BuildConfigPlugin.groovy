@@ -121,6 +121,7 @@ class BuildConfigPlugin implements Plugin<Project>
          clsName = cfg.clsName ?: DEFAULT_CLASS_NAME
          appName = cfg.appName ?: p.name
          version = cfg.version ?: p.version
+         useGetters = cfg.useGetters ?: false
          if (cfg.charset != null)
             charset = cfg.charset
          cfg.classFields.values ().each { ClassField cf ->
