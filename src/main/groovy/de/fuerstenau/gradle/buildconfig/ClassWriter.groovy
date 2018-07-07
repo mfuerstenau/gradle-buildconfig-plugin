@@ -31,17 +31,27 @@ class ClassWriter extends Writer
 
    private final Writer delegate
    private boolean isClass
+   
+   private String pkg
+   private String cls
 
-   ClassWriter (Writer delegate)
+   ClassWriter (Writer delegate, String pkg, String cls)
    {
       this.delegate = delegate
+      this.pkg = pkg
+      this.cls = cls
    }
 
    ClassWriter writePackage (String pkg) throws IOException
    {
       if (isClass)
          throw new IllegalStateException ("cannot write package if class is already written")
-      delegate.write ("package ${pkg};\n\n")
+      delegate.write ("""package ${pkg};
+
+import java.util.List;
+import java.lang.reflect.Field;
+
+""")
       this
    }
 
@@ -98,7 +108,33 @@ class ClassWriter extends Writer
    public void close () throws IOException
    {
       if (isClass)
+      {
+         delegate.write("""   public interface PrettyPrinter
+   {
+      public void print(Field[] field);
+   }
+
+   public static void prettyPrint(PrettyPrinter printer)
+   {
+      printer.print(${pkg}.${cls}.class.getDeclaredFields());
+   }
+
+   public static void prettyPrint()
+   {
+      prettyPrint((fields) ->
+      {
+         for (final Field field : fields)
+            try
+            {
+               System.out.println(field.getName() + ": " + field.get(null));\n\
+            }
+            catch (IllegalArgumentException | IllegalAccessException ex)
+            {
+            }
+      });
+   }""")
          delegate.write ("}\n")
+      }
       delegate.close ()
    }
 
