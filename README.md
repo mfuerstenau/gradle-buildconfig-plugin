@@ -78,7 +78,7 @@ A ```BuildConfig``` is generated as _Java_ code and then compiled to a ```.class
 Here is an example how such a generated _Java_ class might look like:
 ```java
 package de.fuerstenau.buildconfig;
-/** DO NOT EDIT. GENERATED CODE */
+@Generated("de.fuerstenau.buildconfig")
 public final class BuildConfig
 {
    private BuildConfig () { /*. no instance */ }
