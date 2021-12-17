@@ -59,15 +59,15 @@ class BuildConfigPlugin implements Plugin<Project>
     * corresponding to the name of given {@link BuildConfigSourceSet}.
     *
     * @param cfg BuildConfigSourceSet
-    * @return corresponding <i>compile</i>-Configuration
+    * @return corresponding <i>implementation</i>-Configuration
     *
     * @exception UnknownConfigurationException is thrown if there is no
-    * corresponding <i>compile</i>-{@link org.gradle.api.artifacts.Configuration }
+    * corresponding <i>implementation</i>-{@link org.gradle.api.artifacts.Configuration }
     */
-   private Configuration getCompileConfiguration (BuildConfigSourceSet cfg)
+   private Configuration getImplConfiguration (BuildConfigSourceSet cfg)
    {
       String configurationName = MAIN_SOURCESET.equals (cfg.name) ?\
-            "compile" : "${cfg.name}Compile"
+            "implementation" : "${cfg.name}Implementation"
       try
       {
          p.configurations.getByName (configurationName)
@@ -156,7 +156,7 @@ class BuildConfigPlugin implements Plugin<Project>
       p.afterEvaluate {
          getBuildConfigSourceSets ().each { BuildConfigSourceSet cfg ->
             SourceSet sourceSet = getSourceSet (cfg)
-            final Configuration compileCfg = getCompileConfiguration (cfg)
+            final Configuration implCfg = getImplConfiguration (cfg)
 
             final GenerateBuildConfigTask generate = createGenerateTask (p, cfg)
 
@@ -191,7 +191,7 @@ class BuildConfigPlugin implements Plugin<Project>
             /*
              * add dependency for sourceset compile configturation */
             /* previously, we'd add the files via dependency:
-             * compileCfg.dependencies.add (p.dependencies.create (compiledClasses))
+             * implCfg.dependencies.add (p.dependencies.create (compiledClasses))
              */
             sourceSet.compileClasspath += compiledClasses
             /* add to classpath, but not the dependency-cache */
@@ -210,7 +210,7 @@ class BuildConfigPlugin implements Plugin<Project>
              * }
              */
 
-            LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, compileCfg.name)
+            LOG.info ("Added task <{}> output files as dependency for configuration <{}>", compile.name, implCfg.name)
 
             if (p.plugins.hasPlugin ('org.gradle.idea'))
             {

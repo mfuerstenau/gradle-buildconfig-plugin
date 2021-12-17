@@ -117,7 +117,11 @@ class BuildConfigSourceSet implements Named
    {
       this.name = name
    }
-   
+
+   String getName() {
+      return name
+   }
+
    /**
     * Merges this {@link BuildConfigSourceSet} instance with other.
     * <p>
@@ -130,7 +134,7 @@ class BuildConfigSourceSet implements Named
     */
    BuildConfigSourceSet plus (BuildConfigSourceSet other)
    {
-      BuildConfigSourceSet result = new BuildConfigSourceSet (other.name)
+      BuildConfigSourceSet result = new BuildConfigSourceSet (other.getName ())
       result.appName = other.appName ?: this.appName
       result.charset = other.charset ?: this.charset
       result.packageName = other.packageName ?: this.packageName
