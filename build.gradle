@@ -1,5 +1,15 @@
 import java.text.SimpleDateFormat
 
+buildscript {
+    repositories {
+        mavenLocal ()
+    }
+
+    dependencies {
+        classpath 'de.fuerstenau:BuildConfigPlugin:1.1.9'
+    }
+}
+
 plugins {
     id 'java-gradle-plugin'
     id 'groovy'

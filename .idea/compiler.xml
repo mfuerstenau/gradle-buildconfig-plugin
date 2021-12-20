@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.7">
+    <bytecodeTargetLevel>
       <module name="BuildConfigPlugin_main" target="1.7" />
       <module name="BuildConfigPlugin_test" target="1.7" />
     </bytecodeTargetLevel>

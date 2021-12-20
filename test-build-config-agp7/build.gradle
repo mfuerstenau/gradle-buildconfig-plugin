@@ -1,0 +1,17 @@
+plugins {
+   id 'java-library'
+   id 'de.fuerstenau.buildconfig'
+
+}
+
+java {
+   sourceCompatibility = JavaVersion.VERSION_1_8
+   targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+buildConfig {
+   appName = "bilibili"
+   version = "1.1"
+   clsName = 'BuildConfig'
+   packageName = "com.example.test.build.config.agp7"
+}
