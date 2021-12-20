@@ -1,1 +1,2 @@
 rootProject.name = 'BuildConfigPlugin'
+include ':test-build-config-agp7'

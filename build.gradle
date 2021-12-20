@@ -1,12 +1,23 @@
 import java.text.SimpleDateFormat
 
-plugins {
-    id 'groovy'
-    id 'maven'
-    id "com.gradle.plugin-publish" version "0.9.7"
+buildscript {
+    repositories {
+        mavenLocal ()
+    }
+
+    dependencies {
+        classpath 'de.fuerstenau:BuildConfigPlugin:1.1.9'
+    }
 }
 
-sourceCompatibility = '1.7'
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven-publish'
+    id "com.gradle.plugin-publish" version "0.16.0"
+}
+
+sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 if (!hasProperty('mainClass')) {
@@ -14,16 +25,12 @@ if (!hasProperty('mainClass')) {
 }
 
 group = 'de.fuerstenau'
-version = '1.1.8'
+version = '1.1.9'
 
 repositories {
     mavenCentral()
 }
 
-configurations {
-    provided
-    compile.extendsFrom provided
-}
 
 task createClasspathManifest {
     def outputDir = file("${buildDir}/${name}")
@@ -38,24 +45,15 @@ task createClasspathManifest {
 }
 
 dependencies {
-    provided gradleApi()
-    testCompile group: 'junit', name: 'junit', version: '4.10'
-    testCompile ('org.spockframework:spock-core:1.0-groovy-2.4') {
+    implementation gradleApi()
+    testImplementation group: 'junit', name: 'junit', version: '4.10'
+    testImplementation ('org.spockframework:spock-core:2.1-M2-groovy-3.0') {
         exclude module : 'groovy-all'
     }
-    testCompile gradleTestKit()
-    testRuntime files(createClasspathManifest)
+    testImplementation gradleTestKit()
+    testRuntimeOnly files(createClasspathManifest)
 }
 
-
-jar {
-    dependsOn configurations.runtime
-    from {
-        (configurations.runtime - configurations.provided).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-}
 
 task copyBintrayTemplate (type: Copy) {
     from "${projectDir}/templates"
@@ -73,7 +71,6 @@ task copyPOMTemplate (type: Copy) {
     expand (version: version)
 }
 
-assemble.dependsOn copyBintrayTemplate
 assemble.dependsOn copyPOMTemplate
 
 pluginBundle {
@@ -94,10 +91,16 @@ pluginBundle {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+gradlePlugin {
+    plugins {
+        buildConfigPlugin {
+            id = 'de.fuerstenau.buildconfig'
+            displayName = 'Build config plugin for Gradle Java and Groovy projects'
+            description = 'A build config is a generated class holding constants set by the build script. It can be accessed within the Java or Groovy application, thus providing a way to transport information about version, project name or debug flags or a lot more info that otherwise will not be available or has to to be transported via complicated workarounds.'
+            implementationClass = 'de.fuerstenau.gradle.buildconfig.BuildConfigPlugin'
+        }
+    }
 }
-
 test {
     testLogging {
         events "failed"
